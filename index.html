@@ -301,6 +301,7 @@
             <label>RIR<input type="number" data-calc="rir" min="0" step="any" inputmode="decimal"></label>
             <label>Weight<input type="number" data-calc="weight-1rm" min="0" step="any" inputmode="decimal"></label>
             <label>Unit<select data-calc="unit-1rm"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
+            <label>BW (optional)<input type="number" data-calc="bw-1rm" min="0" step="any" inputmode="decimal"></label>
             <div class="calculadora_campo_musculos">
               <label>Number of muscles groups involved<input type="number" data-calc="muscles-1rm" min="1" step="1" inputmode="numeric"></label>
               <span class="calculadora_info_musculos"><strong>(!)</strong> Do not count your forearms and hands, as these are small muscles and should not be the limiting factor in your heaviest lifts.</span>
@@ -359,8 +360,21 @@
           </div>
         </section>
 
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_dri">
+          <h3 id="titulo_calcular_dri">Calculate DRI</h3>
+          <div class="calculadora_campos">
+            <label>Height of the fall<input type="number" data-calc="dri-fall-height" min="0" step="any" inputmode="decimal"></label>
+            <label>Height unit<select data-calc="dri-height-unit"><option value="meters">Meters (m)</option><option value="in">Inches (in)</option></select></label>
+            <label>FPS<input type="number" data-calc="dri-fps" min="0" step="any" inputmode="decimal"></label>
+            <label>First contact frame<input type="number" data-calc="dri-contact" min="0" step="any" inputmode="decimal"></label>
+            <label>Takeoff frame<input type="number" data-calc="dri-takeoff" min="0" step="any" inputmode="decimal"></label>
+            <label>Landing frame<input type="number" data-calc="dri-landing" min="0" step="any" inputmode="decimal"></label>
+          </div>
+          <p class="calculadora_resultado" data-result="dri" role="status" aria-live="polite">DRI: Enter valid values to calculate.</p>
+        </section>
+
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_salto">
-          <h3 id="titulo_calcular_salto">Jump height</h3>
+          <h3 id="titulo_calcular_salto">Calculate jump height</h3>
           <div class="calculadora_metodo">
             <h4>Calculate using frames</h4>
             <div class="calculadora_campos">

@@ -2,8 +2,40 @@ const tela_calculadora = document.getElementById("tela_calculadora");
 const METERS_PER_INCH = 0.0254;
 const CENTIMETERS_PER_INCH = 2.54;
 const KILOGRAMS_PER_POUND = 0.45359237;
+const STORAGE_TIPTOE = "calculator_jump_tiptoe";
 const unidades_tiptoe = { frames: "cm", time: "cm" };
 const unidades_peso = { "1rm": "Kg", reps: "Kg", target: "Kg" };
+
+function restaurar_valores_tiptoe() {
+    const guardado = localStorage.getItem(STORAGE_TIPTOE);
+    if (!guardado) return;
+
+    const valores = JSON.parse(guardado);
+    if (!valores || typeof valores !== "object") return;
+    ["frames", "time"].forEach(metodo => {
+        const dados = valores[metodo];
+        if (!dados || !["cm", "in"].includes(dados.unit)) return;
+
+        const campo = document.querySelector(`[data-calc="jump-tip-${metodo}"]`);
+        const seletor = document.querySelector(`[data-calc="jump-unit-${metodo}"]`);
+        if (typeof dados.value === "string" && dados.value !== "" && Number.isFinite(Number(dados.value)) && Number(dados.value) >= 0) {
+            campo.value = dados.value;
+        }
+        seletor.value = dados.unit;
+        unidades_tiptoe[metodo] = dados.unit;
+    });
+}
+
+function guardar_valores_tiptoe() {
+    const valores = {};
+    ["frames", "time"].forEach(metodo => {
+        valores[metodo] = {
+            value: document.querySelector(`[data-calc="jump-tip-${metodo}"]`).value,
+            unit: document.querySelector(`[data-calc="jump-unit-${metodo}"]`).value
+        };
+    });
+    localStorage.setItem(STORAGE_TIPTOE, JSON.stringify(valores));
+}
 
 function abrir_calculadora() {
     tela_calculadora.style.display = "flex";
@@ -51,15 +83,20 @@ function calcular_1rm() {
     const reps = ler_valor_calculadora("reps-1rm");
     const rir = ler_valor_calculadora("rir");
     const weight = ler_valor_calculadora("weight-1rm");
+    const bwCampo = document.querySelector('[data-calc="bw-1rm"]');
+    const bw = bwCampo.value.trim() === "" ? null : ler_valor_calculadora("bw-1rm");
     const muscles = ler_valor_calculadora("muscles-1rm");
     const factor = fator_reps_calculadora(muscles);
-    if (reps === null || rir === null || weight === null || weight <= 0 || factor === null || reps < 0 || rir < 0) {
+    if (reps === null || rir === null || weight === null || weight <= 0 || factor === null || reps < 0 || rir < 0 ||
+        (bwCampo.value.trim() !== "" && (bw === null || bw <= 0))) {
         definir_resultado_calculadora("1rm", "1RM: Enter valid values to calculate.");
         return;
     }
     const oneRepMax = factor * (reps + rir) * weight + weight;
     const unit = document.querySelector('[data-calc="unit-1rm"]').value;
-    definir_resultado_calculadora("1rm", `1RM: ${formatar_resultado_calculadora(oneRepMax)} ${unit}`);
+    const resultado = `${formatar_resultado_calculadora(oneRepMax)} ${unit}`;
+    const forcaRelativa = bw === null ? "" : ` -> ${formatar_resultado_calculadora(oneRepMax / bw)} BW`;
+    definir_resultado_calculadora("1rm", `1RM: ${resultado}${forcaRelativa}`);
 }
 
 function calcular_reps() {
@@ -124,6 +161,28 @@ function calcular_rsi_tempo() {
     definir_resultado_calculadora("rsi-time", `RSI: ${formatar_resultado_calculadora(flight / ground)}`);
 }
 
+function calcular_dri() {
+    const fallHeight = ler_valor_calculadora("dri-fall-height");
+    const fps = ler_valor_calculadora("dri-fps");
+    const firstContact = ler_valor_calculadora("dri-contact");
+    const takeoff = ler_valor_calculadora("dri-takeoff");
+    const landing = ler_valor_calculadora("dri-landing");
+    if (fallHeight === null || fps === null || fps <= 0 ||
+        firstContact === null || takeoff === null || landing === null ||
+        takeoff <= firstContact || landing <= takeoff) {
+        definir_resultado_calculadora("dri", "DRI: Enter valid values (contact < takeoff < landing) and an FPS greater than zero.");
+        return;
+    }
+
+    const fallUnit = document.querySelector('[data-calc="dri-height-unit"]').value;
+    const fallHeightMeters = fallUnit === "in" ? fallHeight * METERS_PER_INCH : fallHeight;
+    const groundContactTime = (takeoff - firstContact) / fps;
+    const flightTime = (landing - takeoff) / fps;
+    const ballisticJumpHeight = (flightTime / 2) ** 2 * 4.905;
+    const dri = (fallHeightMeters + ballisticJumpHeight) / (9.80655 * (groundContactTime ** 2));
+    definir_resultado_calculadora("dri", `DRI: ${formatar_resultado_calculadora(dri)}`);
+}
+
 function calcular_altura_salto(metodo) {
     const usandoFrames = metodo === "frames";
     const unit = document.querySelector(`[data-calc="jump-unit-${metodo}"]`).value;
@@ -175,7 +234,7 @@ function atualizar_calculadora(event) {
         const unidadeAnterior = unidades_peso[calculo];
         const unidadeNova = campo.value;
         const camposPeso = calculo === "1rm"
-            ? ["weight-1rm"]
+            ? ["weight-1rm", "bw-1rm"]
             : calculo === "reps"
                 ? ["daily-1rm", "weight-reps"]
                 : ["target-1rm"];
@@ -210,10 +269,28 @@ function atualizar_calculadora(event) {
             tiptoeCampo.value = String(Number((valorAnterior * fatorConversao).toFixed(4)));
         }
         unidades_tiptoe[metodo] = unidadeNova;
+        guardar_valores_tiptoe();
         calcular_altura_salto(metodo);
         return;
     }
-    if (["reps-1rm", "rir", "weight-1rm", "unit-1rm", "muscles-1rm"].includes(nome)) {
+    if (nome === "dri-height-unit") {
+        if (event.type !== "change") return;
+        const campoAltura = document.querySelector('[data-calc="dri-fall-height"]');
+        const unidadeNova = campo.value;
+        const unidadeAnterior = campo.dataset.unit || "meters";
+        if (campoAltura.value !== "") {
+            const altura = Number(campoAltura.value);
+            const convertida = unidadeAnterior === "in"
+                ? altura * METERS_PER_INCH
+                : altura / METERS_PER_INCH;
+            campoAltura.value = String(Number(convertida.toFixed(4)));
+        }
+        campo.dataset.unit = unidadeNova;
+        calcular_dri();
+        return;
+    }
+    if (["jump-tip-frames", "jump-tip-time"].includes(nome)) guardar_valores_tiptoe();
+    if (["reps-1rm", "rir", "weight-1rm", "bw-1rm", "unit-1rm", "muscles-1rm"].includes(nome)) {
         calcular_1rm();
     } else if (["daily-1rm", "weight-reps", "unit-reps", "muscles-reps"].includes(nome)) {
         calcular_reps();
@@ -223,6 +300,8 @@ function atualizar_calculadora(event) {
         calcular_rsi_frames();
     } else if (["rsi-flight", "rsi-ground"].includes(nome)) {
         calcular_rsi_tempo();
+    } else if (["dri-fall-height", "dri-fps", "dri-contact", "dri-takeoff", "dri-landing"].includes(nome)) {
+        calcular_dri();
     } else if (["jump-fps", "jump-takeoff", "jump-landing", "jump-tip-frames", "jump-unit-frames"].includes(nome)) {
         calcular_altura_salto("frames");
     } else if (["jump-flight", "jump-tip-time", "jump-unit-time"].includes(nome)) {
@@ -230,6 +309,7 @@ function atualizar_calculadora(event) {
     }
 }
 
+restaurar_valores_tiptoe();
 document.getElementById("tela_calculadora").addEventListener("input", atualizar_calculadora);
 document.getElementById("tela_calculadora").addEventListener("change", atualizar_calculadora);
 document.getElementById("tela_calculadora").addEventListener("click", event => {

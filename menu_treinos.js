@@ -351,7 +351,7 @@ function abrir_info_exercicio(id) {
         exercicio_dicionario.descricao || "No description defined.";
     document.getElementById("pr_info_exercicio").textContent =
         exercicio_dicionario.pr_valor
-            ? `${exercicio_dicionario.pr_valor} ${exercicio_dicionario.pr_unidade || ""}`.trim()
+            ? `${exercicio_dicionario.pr_valor} ${exercicio_dicionario.pr_unidade || ""}${formatar_forca_relativa_pr(exercicio_dicionario)}`.trim()
             : "No PR defined.";
     document.getElementById("bw_pr_info_exercicio").textContent =
         exercicio_dicionario.bw_at_pr !== undefined && exercicio_dicionario.bw_at_pr !== ""
@@ -622,7 +622,7 @@ function unidades_de_medida() {
 
 /* ---------- tabela de séries: secções (reps | intensidade) x grupos de séries ---------- */
 
-const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s"];
+const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "meters", "cm", "in"];
 const TIPOS_SERIE = ["reps", "meters", "Km", "mi", "seconds", "hours"];
 const MAX_SECOES_TABELA = 5;
 const MAX_SERIES_TABELA = 8;

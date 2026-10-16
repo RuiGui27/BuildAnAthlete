@@ -257,6 +257,22 @@ function formatar_data_pr(ex) {
     return `${ex.pr_day}-${ex.pr_month}-${ex.pr_year}`;
 }
 
+function formatar_forca_relativa_pr(ex) {
+    const pr = Number(ex.pr_valor);
+    const bw = Number(ex.bw_at_pr);
+    const unidadePr = ex.pr_unidade || "Kg";
+    const unidadeBw = ex.bw_at_pr_unidade || "Kg";
+    if (ex.pr_valor === undefined || ex.pr_valor === "" || !Number.isFinite(pr) || pr <= 0 ||
+        ex.bw_at_pr === undefined || ex.bw_at_pr === "" || !Number.isFinite(bw) || bw <= 0 ||
+        !["Kg", "Lb"].includes(unidadePr) || !["Kg", "Lb"].includes(unidadeBw)) {
+        return "";
+    }
+
+    const prKg = unidadePr === "Lb" ? pr * 0.45359237 : pr;
+    const bwKg = unidadeBw === "Lb" ? bw * 0.45359237 : bw;
+    return ` -> ${Number((prKg / bwKg).toFixed(2))} BW`;
+}
+
 function abrir_busca_tempo() {
     if (exercicios_selecionados_busca_tempo.size === 0) {
         alert("You need to select at least three items.");
@@ -1638,7 +1654,7 @@ function renderizar_lista_exercicios(exercicios) {
         card.id = `card_ex_${ex.id}`;
 
         const prFormatado = (ex.pr_valor !== undefined && ex.pr_valor !== "" && ex.pr_valor !== null)
-            ? `${ex.pr_valor} ${ex.pr_unidade || ""}`
+            ? `${ex.pr_valor} ${ex.pr_unidade || ""}${formatar_forca_relativa_pr(ex)}`
             : "None";
         const bwPrFormatado = ex.bw_at_pr !== undefined && ex.bw_at_pr !== "" && ex.bw_at_pr !== null
             ? `${ex.bw_at_pr} ${ex.bw_at_pr_unidade || "Kg"}`
