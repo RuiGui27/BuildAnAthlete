@@ -5,6 +5,15 @@
     font-size: 14px;
   }
 
+  .campo_autoavaliacao_treino {
+    margin-right: 8px;
+    margin-left: 8px;
+  }
+
+  #tela_editar_treino.modo_leitura .campo_autoavaliacao_treino {
+    margin-top: 20px;
+  }
+
   #tela_calculadora,
   #tela_busca_tempo {
     padding: 6px;

@@ -3,7 +3,7 @@ const METERS_PER_INCH = 0.0254;
 const CENTIMETERS_PER_INCH = 2.54;
 const KILOGRAMS_PER_POUND = 0.45359237;
 const unidades_tiptoe = { frames: "cm", time: "cm" };
-const unidades_peso = { "1rm": "Kg", reps: "Kg" };
+const unidades_peso = { "1rm": "Kg", reps: "Kg", target: "Kg" };
 
 function abrir_calculadora() {
     tela_calculadora.style.display = "flex";
@@ -83,6 +83,26 @@ function calcular_reps() {
     );
 }
 
+function calcular_peso_alvo() {
+    const oneRepMax = ler_valor_calculadora("target-1rm");
+    const reps = ler_valor_calculadora("target-reps");
+    const rir = ler_valor_calculadora("target-rir");
+    const muscles = ler_valor_calculadora("muscles-target");
+    const factor = fator_reps_calculadora(muscles);
+    if (oneRepMax === null || oneRepMax <= 0 || reps === null || rir === null || factor === null) {
+        definir_resultado_calculadora("target-weight", "Weight: Enter valid values to calculate.");
+        return;
+    }
+    const rirFactor = muscles <= 3 ? 0.03333 : factor;
+    const weight = oneRepMax / (reps * factor + rir * rirFactor + 1);
+    const percentage = weight * 100 / oneRepMax;
+    const unit = document.querySelector('[data-calc="unit-target"]').value;
+    definir_resultado_calculadora(
+        "target-weight",
+        `Weight: ${formatar_resultado_calculadora(weight)} ${unit} -> ${formatar_resultado_calculadora(percentage)}%`
+    );
+}
+
 function calcular_rsi_frames() {
     const firstContact = ler_valor_calculadora("rsi-contact");
     const takeoff = ler_valor_calculadora("rsi-takeoff");
@@ -146,17 +166,19 @@ function atualizar_calculadora(event) {
     const campo = event.target.closest("[data-calc]");
     if (!campo) return;
     const nome = campo.dataset.calc;
-    if (["muscles-1rm", "muscles-reps"].includes(nome) && campo.value && !/^\d+$/.test(campo.value)) {
+    if (["muscles-1rm", "muscles-reps", "muscles-target"].includes(nome) && campo.value && !/^\d+$/.test(campo.value)) {
         campo.value = "";
     }
-    if (nome === "unit-1rm" || nome === "unit-reps") {
+    if (["unit-1rm", "unit-reps", "unit-target"].includes(nome)) {
         if (event.type !== "change") return;
-        const calculo = nome === "unit-1rm" ? "1rm" : "reps";
+        const calculo = nome === "unit-1rm" ? "1rm" : nome === "unit-reps" ? "reps" : "target";
         const unidadeAnterior = unidades_peso[calculo];
         const unidadeNova = campo.value;
         const camposPeso = calculo === "1rm"
             ? ["weight-1rm"]
-            : ["daily-1rm", "weight-reps"];
+            : calculo === "reps"
+                ? ["daily-1rm", "weight-reps"]
+                : ["target-1rm"];
         camposPeso.forEach(nomeCampo => {
             const campoPeso = document.querySelector(`[data-calc="${nomeCampo}"]`);
             if (campoPeso.value !== "") {
@@ -169,7 +191,8 @@ function atualizar_calculadora(event) {
         });
         unidades_peso[calculo] = unidadeNova;
         if (calculo === "1rm") calcular_1rm();
-        else calcular_reps();
+        else if (calculo === "reps") calcular_reps();
+        else calcular_peso_alvo();
         return;
     }
     if (nome === "jump-unit-frames" || nome === "jump-unit-time") {
@@ -194,6 +217,8 @@ function atualizar_calculadora(event) {
         calcular_1rm();
     } else if (["daily-1rm", "weight-reps", "unit-reps", "muscles-reps"].includes(nome)) {
         calcular_reps();
+    } else if (["target-1rm", "target-reps", "target-rir", "unit-target", "muscles-target"].includes(nome)) {
+        calcular_peso_alvo();
     } else if (["rsi-contact", "rsi-takeoff", "rsi-landing"].includes(nome)) {
         calcular_rsi_frames();
     } else if (["rsi-flight", "rsi-ground"].includes(nome)) {

@@ -2,7 +2,6 @@
       :root {
         --mobile-gutter: 10px;
         --mobile-calendar-width: calc(200vw - (2 * var(--mobile-gutter)));
-        --mobile-editor-height: 98dvh;
         --mobile-dictionary-top: 68px;
         --mobile-dictionary-height: calc(100dvh - var(--mobile-dictionary-top) - 8px);
         --mobile-note-height: 96dvh;
@@ -13,7 +12,8 @@
 
       .menu {
         top: 12px;
-        left: var(--mobile-gutter);
+        left: 16.6667%;
+        transform: translateX(-50%);
       }
 
       .menu > button,
@@ -25,14 +25,16 @@
 
       #botao_bloco_notas {
         top: 12px;
-        left: 112px;
+        left: 50%;
+        transform: translateX(-50%);
       }
 
       #botao_calculadora {
         position: fixed;
         top: 12px;
-        right: var(--mobile-gutter);
-        left: auto;
+        left: 83.3333%;
+        right: auto;
+        transform: translateX(-50%);
         min-height: var(--mobile-toolbar-height);
         padding: 10px 14px;
         font-size: 16px;
@@ -76,11 +78,11 @@
 
       #tela_editar_treino {
         position: fixed;
-        top: 50%;
+        top: calc(50% + 28px);
         left: 50%;
         width: calc(100vw - (2 * var(--mobile-gutter)));
-        height: var(--mobile-editor-height);
-        max-height: var(--mobile-editor-height);
+        height: calc(100dvh - 76px);
+        max-height: calc(100dvh - 76px);
         overflow: auto;
         transform: translate(-50%, -50%);
         box-sizing: border-box;
@@ -159,7 +161,7 @@
 
       .ex_busca_filtros {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
       }
 
       .ex_busca_filtros button {
@@ -274,6 +276,23 @@
       .ex_acoes {
         position: static;
         align-self: flex-end;
+      }
+
+      .campo_autoavaliacao_treino {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        margin: 0 12px 20px;
+      }
+
+      #autoavaliacao_treino {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      #tela_editar_treino.modo_leitura .campo_autoavaliacao_treino {
+        margin-top: 16px;
       }
 
       #tela_editar_treino.modo_leitura .linha_exercicio {
@@ -394,7 +413,7 @@
 
       .nav_grupo_pesquisa {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 8px;
         margin: 0;
       }
@@ -408,6 +427,14 @@
       .dd_filtro {
         width: 100%;
         min-width: 0;
+        min-height: 40px;
+      }
+
+      .dd_filtro.filtro_composto {
+        width: 100%;
+      }
+
+      .dd_filtro .dd_botao {
         min-height: 40px;
       }
 

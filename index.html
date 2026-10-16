@@ -13,7 +13,7 @@
 
 <body>
   <div id="botão_menu" class="menu">
-    <button>Menus</button>
+    <button type="button">Menus</button>
 
     <div class="opcoes">
         <a href="#" onclick="abrir_calendario(); return false;">Workout schedule</a>
@@ -41,15 +41,23 @@
 
       <div class="nav_grupo_pesquisa">
         <input type="text" id="filtro_pesquisa_exercicio" class="nav_input_pesquisa" placeholder="Search by name, muscle, category..." oninput="filtrar_exercicios_dicionario()">
-        <div id="filtro_categoria_exercicio" class="dd_filtro" data-tipo="categoria" data-padrao="All Categories"></div>
-        <div id="filtro_musculo_exercicio" class="dd_filtro" data-tipo="musculo" data-padrao="All Muscles"></div>
+        <div id="filtro_categoria_exercicio" class="dd_filtro filtro_composto">
+          <button type="button" class="dd_botao" onclick="abrir_modal_filtros_exercicio()">
+            <span class="dd_texto">Filter by Categories and Muscles</span>
+            <span class="dd_seta" aria-hidden="true">&#9660;</span>
+          </button>
+          <div class="filtros_nav_chips">
+            <div id="chips_filtro_categorias" class="filtro_multi_chips"></div>
+            <div id="chips_filtro_musculos" class="filtro_multi_chips"></div>
+          </div>
+        </div>
       </div>
 
       <div class="nav_grupo_botoes">
         <button id="btn_toggle_form_exercicio" class="btn_nav_acao btn_nav_add" onclick="alternar_form_exercicio()">➕ Add Exercise</button>
         <button id="btn_toggle_add_categoria" class="btn_nav_acao btn_nav_cat" onclick="alternar_painel_add_opcao('categoria')" title="Create a new category">🏷️ Add Category</button>
         <button id="btn_toggle_add_musculo" class="btn_nav_acao btn_nav_musc" onclick="alternar_painel_add_opcao('musculo')" title="Create a new muscle (e.g. Shoulders - Lateral)">💪 Add Muscle</button>
-        <button id="btn_busca_tempo" class="btn_nav_acao btn_nav_cal" onclick="abrir_busca_tempo()" title="Search through time">Search through time 0/3</button>
+        <button id="btn_busca_tempo" class="btn_nav_acao btn_nav_cal" onclick="abrir_busca_tempo()" title="Search through time">🕒 Search through time 0/3</button>
       </div>
     </div>
 
@@ -287,7 +295,7 @@
         </p>
 
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_1rm">
-          <h3 id="titulo_calcular_1rm">Calculate 1RM based on reps, RIR and weight used</h3>
+          <h3 id="titulo_calcular_1rm">Calculate 1RM based on reps, RIR and weight used <small class="calculadora_nota_reps">(!) This calculation only loses a significant amount of precision after 16 total reps.</small></h3>
           <div class="calculadora_campos">
             <label>Reps<input type="number" data-calc="reps-1rm" min="0" step="any" inputmode="decimal"></label>
             <label>RIR<input type="number" data-calc="rir" min="0" step="any" inputmode="decimal"></label>
@@ -302,7 +310,7 @@
         </section>
 
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_reps">
-          <h3 id="titulo_calcular_reps">Calculate maximum reps based on the 1RM set for today and the weight used</h3>
+          <h3 id="titulo_calcular_reps">Calculate maximum reps based on the 1RM set for today and the weight used <small class="calculadora_nota_reps">(!) This calculation only loses a significant amount of precision after 16 total reps.</small></h3>
           <div class="calculadora_campos">
             <label>1RM<input type="number" data-calc="daily-1rm" min="0" step="any" inputmode="decimal"></label>
             <label>Weight<input type="number" data-calc="weight-reps" min="0" step="any" inputmode="decimal"></label>
@@ -313,6 +321,21 @@
             </div>
           </div>
           <p class="calculadora_resultado" data-result="reps" role="status" aria-live="polite">Maximum reps: Enter values to calculate.</p>
+        </section>
+
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_peso">
+          <h3 id="titulo_calcular_peso">Calculate weight based on the 1RM set for today and the number of reps and RIR <small class="calculadora_nota_reps">(!) This calculation only loses a significant amount of precision after 16 total reps.</small></h3>
+          <div class="calculadora_campos">
+            <label>1RM<input type="number" data-calc="target-1rm" min="0" step="any" inputmode="decimal"></label>
+            <label>Reps<input type="number" data-calc="target-reps" min="0" step="any" inputmode="decimal"></label>
+            <label>RIR<input type="number" data-calc="target-rir" min="0" step="any" inputmode="decimal"></label>
+            <label>Unit<select data-calc="unit-target"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
+            <div class="calculadora_campo_musculos">
+              <label>Number of muscles groups involved<input type="number" data-calc="muscles-target" min="1" step="1" inputmode="numeric"></label>
+              <span class="calculadora_info_musculos"><strong>(!)</strong> Do not count your forearms and hands, as these are small muscles and should not be the limiting factor in your heaviest lifts.</span>
+            </div>
+          </div>
+          <p class="calculadora_resultado" data-result="target-weight" role="status" aria-live="polite">Weight: Enter values to calculate.</p>
         </section>
 
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_rsi">

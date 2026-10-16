@@ -545,18 +545,18 @@ function atualizar_rotulo_filtros_treino(linha) {
     if (!linha) return;
     const categorias = linha._filtrosCategoria || new Set();
     const musculos = linha._filtrosMusculo || new Set();
-    const botao_categorias = linha.querySelector(".ex_filtro_categoria");
-    const botao_musculos = linha.querySelector(".ex_filtro_musculo");
-    if (botao_categorias) {
-        botao_categorias.textContent = categorias.size ? `Categories (${categorias.size})` : "Categories";
-        botao_categorias.classList.toggle("ativo", categorias.size > 0);
-        botao_categorias.title = [...categorias].join(", ") || "Filter by categories";
-    }
-    if (botao_musculos) {
-        botao_musculos.textContent = musculos.size ? `Muscles (${musculos.size})` : "Muscles";
-        botao_musculos.classList.toggle("ativo", musculos.size > 0);
-        botao_musculos.title = [...musculos].join(", ") || "Filter by muscles";
-    }
+    const botao_filtros = linha.querySelector(".ex_filtros_exercicio");
+    if (!botao_filtros) return;
+
+    const ativos = categorias.size + musculos.size;
+    botao_filtros.textContent = ativos
+        ? `Filter by Categories and Muscles (${categorias.size}/${musculos.size})`
+        : "Filter by Categories and Muscles";
+    botao_filtros.classList.toggle("ativo", ativos > 0);
+    botao_filtros.title = [
+        categorias.size && `Categories: ${[...categorias].join(", ")}`,
+        musculos.size && `Muscles: ${[...musculos].join(", ")}`
+    ].filter(Boolean).join(" | ") || "Filter by categories and muscles";
 }
 
 // exercício que não está no dicionário: só fica com o nome
@@ -883,13 +883,6 @@ function alterar_tabela(linha, acao) {
 }
 
 // tabela "completamente vazia": nenhuma célula de reps nem de intensidade preenchida (as unidades não contam)
-function tabela_esta_vazia(tabela) {
-    const t = normalizar_tabela(tabela);
-    return t.series.every(serie =>
-        serie.valores.every(c => !String(c.reps || "").trim() && !String(c.intensidade || "").trim())
-    );
-}
-
 function tabela_incompleta(tabela) {
     const t = normalizar_tabela(tabela);
     return t.series.some(serie =>
@@ -1046,8 +1039,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
                 <label>Search exercise</label>
                 <input type="text" class="ex_input_busca" placeholder="Search by name...">
                 <div class="ex_busca_filtros">
-                    <button type="button" class="ex_filtro_categoria" onclick="abrir_modal_filtros_exercicio(this.closest('.linha_exercicio'))">Categories</button>
-                    <button type="button" class="ex_filtro_musculo" onclick="abrir_modal_filtros_exercicio(this.closest('.linha_exercicio'))">Muscles</button>
+                    <button type="button" class="ex_filtros_exercicio" onclick="abrir_modal_filtros_exercicio(this.closest('.linha_exercicio'))">Categories and Muscles</button>
                 </div>
                 <div class="ex_sugestoes"></div>
             </div>
@@ -1574,7 +1566,17 @@ function gerar_calendário() {
     for (let i = 1; i <= num_dias_no_mes; i++) {
         const dia = document.createElement('div');
         dia.classList.add('dia');
-        dia.textContent = i;
+
+        const topo_dia = document.createElement("div");
+        topo_dia.classList.add("topo_dia");
+        const botao_notas_dia = document.createElement('button');
+        botao_notas_dia.classList.add('botao_notas_cal');
+        botao_notas_dia.textContent = "notas";
+        const numero_dia = document.createElement("span");
+        numero_dia.classList.add("numero_dia");
+        numero_dia.textContent = i;
+        topo_dia.append(botao_notas_dia, numero_dia);
+        dia.appendChild(topo_dia);
 
         const chave = chave_treino(i, mes, ano);
         const lista_treinos = treinos[chave] || [];
@@ -1593,21 +1595,11 @@ function gerar_calendário() {
             }
         };
 
-        // contentor para os botões, lado a lado
-        const linha_botoes = document.createElement('div');
-        linha_botoes.classList.add('linha_botoes_dia');
-
-        const botao_notas_dia = document.createElement('button');
-        botao_notas_dia.classList.add('botao_notas_cal');   
-        botao_notas_dia.textContent = "notas";
         botao_notas_dia.onclick = function(e) {
             e.stopPropagation(); // não deixa o clique "subir" para a célula do dia
             abrir_notas_dia(i, mes, ano);
             fechar_calendario();
         };
-        linha_botoes.appendChild(botao_notas_dia);
-
-        dia.appendChild(linha_botoes); // só o contentor entra na coluna do .dia
 
         if (lista_treinos.length > 0) {
             dia.appendChild(criar_preview_treino(lista_treinos[0])); // resumo do treino dentro da célula
@@ -1615,23 +1607,6 @@ function gerar_calendário() {
         calendario.appendChild(dia);
 
         coluna = (coluna + 1) % 7;
-
-        // verificar dias que têem treinos que contêem campos vazios, não precisa de verificar as notas pois são opcionais
-        // os separadores não contam (têm sempre hora, 00:00 por defeito); os exercícios precisam de todos os campos
-        const tem_campos_vazios = lista_treinos.some(treino => {
-            const so_exercicios = treino.exercicios.filter(ex => !ex.separador);
-            // por agora só se exige o exercício escolhido (sets, reps, intensidade... voltam a ser verificados com a tabela nova)
-            return so_exercicios.length === 0 ||
-                so_exercicios.some(ex => !ex.nome || ex.nome.length === 0 || exercicio_com_tabela_vazia(ex));
-        });
-
-        if (tem_campos_vazios) {
-            const simb_alert = document.createElement('div');
-            simb_alert.classList.add('simbolo_campos_vazios');
-            simb_alert.textContent = "!";
-            simb_alert.title = "The sets table has empty fields";
-            dia.appendChild(simb_alert);
-        }
 
         const nota_dia = notas_dia[chave_treino(i, mes, ano)];
         if (nota_dia && nota_dia.notas.trim().length > 0) {
@@ -1918,3 +1893,15 @@ function inicializar_bloco_notas() {
 inicializar_autoavaliacao();
 inicializar_bloco_notas();
 regenerar_calendario();
+
+const menu_principal = document.getElementById("botão_menu");
+menu_principal.querySelector("button").addEventListener("click", () => {
+    menu_principal.classList.toggle("menu_aberto");
+    menu_principal.classList.remove("menu_fechar");
+});
+menu_principal.querySelectorAll(".opcoes a").forEach(link => {
+    link.addEventListener("click", () => {
+        menu_principal.classList.remove("menu_aberto");
+        menu_principal.classList.add("menu_fechar");
+    });
+});

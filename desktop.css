@@ -29,6 +29,14 @@
         display: block;
     }   
 
+    .menu.menu_aberto .opcoes {
+        display: block;
+    }
+
+    .menu.menu_fechar .opcoes {
+        display: none !important;
+    }
+
     #botao_bloco_notas {
       position: absolute;
       top: 35px;
@@ -117,6 +125,12 @@
       margin: 0 0 12px;
       color: #2d6187;
       font-size: 17px;
+    }
+
+    .calculadora_nota_reps {
+      color: #334e60;
+      font-size: 11px;
+      font-weight: normal;
     }
 
     .calculadora_metodo + .calculadora_metodo {
@@ -397,7 +411,7 @@
       background-color: white;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: stretch;
       padding: 4px;
       font-size: 14px;
       box-sizing: border-box;
@@ -427,13 +441,25 @@
       cursor: pointer;
     }
 
-    /* resumo do treino dentro da célula: ocupa o espaço entre o número do dia e o botão "notas" */
+    .topo_dia {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      min-height: 20px;
+    }
+
+    .numero_dia {
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    /* resumo do treino ocupa a célula abaixo do cabeçalho do dia */
     .preview_treino {
       position: absolute;
-      top: 26px;      /* abaixo do número do dia e do "!" */
+      top: 28px;
       left: 4px;
       right: 4px;
-      bottom: 36px;   /* acima do botão "notas" */
+      bottom: 6px;
       overflow-y: auto;
       overflow-x: hidden;
       font-family: Arial, sans-serif;
@@ -520,28 +546,12 @@
       cursor: pointer;
     }
 
-    .linha_botoes_dia {
-      display: flex;
-      gap: 4px;
-      width: 82%;
-      position: absolute;
-      bottom: 9px;
-    }
-
-    .linha_botoes_dia button {
-      width: 30px;      /* largura fixa */
-      height: 20px;      /* altura fixa */
-      padding: 0;        /* anula o padding: 8px 16px do button genérico */
-      font-size: 10px;
-      line-height: 1;
-      flex: 1;           /* opcional: faz os dois botões dividirem o espaço disponível */
-    }
-
     .botao_notas_cal {
-      width: 20px;
-      height: 18px;
+      width: auto;
+      min-width: 30px;
+      height: 20px;
       font-size: 9px;
-      padding: 0;
+      padding: 0 4px;
       filter: brightness(0.88);
     }
 
@@ -1570,10 +1580,10 @@
       color: #222;
     }
 
-    /* Dropdown próprio dos filtros (cada opção tem um "×" para a remover) */
+    /* Combined category and muscle filter with removable selected chips */
     .dd_filtro {
       position: relative;
-      width: 125px;
+      width: 260px;
       flex-shrink: 0;
     }
 
@@ -1593,6 +1603,16 @@
       text-align: left;
       box-shadow: none;
       box-sizing: border-box;
+    }
+
+    .dd_filtro.filtro_composto {
+      width: 260px;
+    }
+
+    .filtros_nav_chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
     }
 
     .filtro_multi_chips {
@@ -1651,52 +1671,6 @@
       flex-shrink: 0;
       font-size: 10px;
       color: #555;
-    }
-
-    /* fixed: não é cortada pelo "overflow: hidden" da janela do dicionário */
-    .dd_lista {
-      display: none;
-      position: fixed;
-      z-index: 5000;
-      min-width: 220px;
-      max-height: 260px;
-      overflow-y: auto;
-      background: #ffffff;
-      border: 1px solid #bdc3c7;
-      border-radius: 8px;
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      color: #222;
-      padding: 4px;
-      box-sizing: border-box;
-      scrollbar-width: thin;
-    }
-
-    .dd_item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 5px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .dd_item:hover {
-      background-color: #edf5f9;
-    }
-    .dd_item.selecionado {
-      background-color: #dbeafe;
-      color: #1e40af;
-      font-weight: bold;
-    }
-    .dd_item_texto {
-      flex: 1;
-      min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .dd_item_x {
@@ -2039,31 +2013,6 @@
     }
     .btn_nav_cal:hover {
       background-color: #2471a3;
-    }
-
-    .btn_nav_fechar {
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #222;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      min-width: 28px;
-      min-height: 28px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      flex-shrink: 0;
-      margin-left: 2px;
-      margin-right: 2px;
-    }
-    .btn_nav_fechar:hover {
-      background-color: white;
     }
 
     .corpo_dicionario {

@@ -512,8 +512,6 @@ function inicializar_menu_exercicios() {
 
 function popular_selects_navbar_e_pr() {
     preencher_select("campo_ex_pr_unidade", UNIDADES_PR);
-    preencher_dropdown_filtro("filtro_categoria_exercicio");
-    preencher_dropdown_filtro("filtro_musculo_exercicio");
     renderizar_chips_filtros_dicionario();
 }
 
@@ -534,35 +532,14 @@ function obter_conjuntos_filtro(contexto = contexto_modal_filtros_exercicio) {
     };
 }
 
-function criar_dropdown_filtro(el) {
-    const tipo = el.dataset.tipo;
-    el.innerHTML = `
-        <button type="button" class="dd_botao">
-          <span class="dd_texto">${tipo === "categoria" ? "All Categories" : "All Muscles"}</span>
-          <span class="dd_seta" aria-hidden="true">&#9660;</span>
-        </button>
-        <div class="filtro_multi_chips"></div>
-    `;
-    el.querySelector(".dd_botao").addEventListener("click", () => abrir_modal_filtros_exercicio());
-}
-
-function preencher_dropdown_filtro(id) {
-    const el = document.getElementById(id);
-    if (el && !el.querySelector(".dd_botao")) criar_dropdown_filtro(el);
-}
-
 function renderizar_chips_filtros_dicionario() {
     [
-        ["filtro_categoria_exercicio", filtros_dicionario_categorias, "All Categories", "Category"],
-        ["filtro_musculo_exercicio", filtros_dicionario_musculos, "All Muscles", "Muscle"]
-    ].forEach(([id, valores, vazio, tipo]) => {
+        ["chips_filtro_categorias", filtros_dicionario_categorias, "Category"],
+        ["chips_filtro_musculos", filtros_dicionario_musculos, "Muscle"]
+    ].forEach(([id, valores, tipo]) => {
         const el = document.getElementById(id);
         if (!el) return;
-        const texto = el.querySelector(".dd_texto");
-        const chips = el.querySelector(".filtro_multi_chips");
-        if (!texto || !chips) return;
-        texto.textContent = valores.size ? `${tipo}s (${valores.size})` : vazio;
-        chips.replaceChildren();
+        el.replaceChildren();
         valores.forEach(valor => {
             const chip = document.createElement("span");
             chip.className = "filtro_multi_chip";
@@ -579,9 +556,17 @@ function renderizar_chips_filtros_dicionario() {
                 filtrar_exercicios_dicionario();
             });
             chip.appendChild(remover);
-            chips.appendChild(chip);
+            el.appendChild(chip);
         });
     });
+    const botao = document.querySelector("#filtro_categoria_exercicio .dd_botao");
+    if (botao) {
+        const resumo = [
+            filtros_dicionario_categorias.size && `Categories: ${[...filtros_dicionario_categorias].join(", ")}`,
+            filtros_dicionario_musculos.size && `Muscles: ${[...filtros_dicionario_musculos].join(", ")}`
+        ].filter(Boolean);
+        botao.title = resumo.join(" | ") || "Search with Categories and Muscles";
+    }
 }
 
 function abrir_modal_filtros_exercicio(linha = null) {
@@ -1714,7 +1699,7 @@ function renderizar_lista_exercicios(exercicios) {
 
 function atualizar_contador_busca_tempo() {
     const botao = document.getElementById("btn_busca_tempo");
-    if (botao) botao.textContent = `Search through time ${exercicios_selecionados_busca_tempo.size}/3`;
+    if (botao) botao.textContent = `🕒 Search through time ${exercicios_selecionados_busca_tempo.size}/3`;
 }
 
 function escapeHtml(texto) {
