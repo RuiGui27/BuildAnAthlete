@@ -1,0 +1,2821 @@
+    .menu {
+      position: absolute;
+      top: 35px;   /* distância ao topo */
+      left: 37px;  /* distância à esquerda */
+      z-index: 1500; /* acima do calendário e do dicionário (1000), abaixo das janelas de notas (2000) */
+    }
+
+    .opcoes {
+        display: none;
+        position: absolute;
+        background: white;
+        min-width: 120px;
+        border: 1px solid black;
+    }
+
+    .opcoes a {
+        display: block;
+        padding: 8px;
+        text-decoration: none;
+        color: black;
+    }
+
+    .opcoes a:hover {
+        background: lightgray;
+    }
+
+    /* Mostra o menu quando o rato está em cima */
+    .menu:hover .opcoes {
+        display: block;
+    }   
+
+    #botao_bloco_notas {
+      position: absolute;
+      top: 35px;
+      left: 120px;
+      z-index: 1500;
+    }
+
+    #botao_calculadora {
+      position: absolute;
+      top: 35px;
+      left: 230px;
+      z-index: 1500;
+    }
+
+    #tela_calculadora {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+      background: rgba(14, 31, 43, 0.72);
+      font-family: Arial, sans-serif;
+    }
+
+    .calculadora_janela {
+      display: flex;
+      flex-direction: column;
+      width: min(1250px, 100%);
+      max-height: 100%;
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgb(160, 205, 222), rgb(132, 180, 200));
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .calculadora_topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .calculadora_topo h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    #fechar_calculadora {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    .calculadora_corpo {
+      overflow-y: auto;
+      padding: 16px;
+      color: #243746;
+    }
+
+    .calculadora_descricao {
+      margin: 0 0 16px;
+      line-height: 1.5;
+    }
+
+    .calculadora_descricao strong {
+      color: #8b1e1e;
+    }
+
+    .calculadora_secao {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid rgba(45, 97, 135, 0.3);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .calculadora_secao h3 {
+      margin: 0 0 12px;
+      color: #2d6187;
+      font-size: 17px;
+    }
+
+    .calculadora_metodo + .calculadora_metodo {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(45, 97, 135, 0.25);
+    }
+
+    .calculadora_metodo h4 {
+      margin: 0 0 10px;
+      color: #1f3f57;
+      font-size: 14px;
+    }
+
+    .calculadora_campos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .calculadora_campos label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      color: #334e60;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .calculadora_campo_musculos {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .calculadora_info_musculos {
+      color: #334e60;
+      font-size: 11px;
+      font-weight: normal;
+      line-height: 1.35;
+    }
+
+    .calculadora_info_musculos strong {
+      margin-right: 3px;
+      color: #17364d;
+      font-size: 13px;
+    }
+
+    .calculadora_campos input,
+    .calculadora_campos select {
+      width: 100%;
+      min-width: 0;
+      height: 36px;
+      padding: 6px 9px;
+      box-sizing: border-box;
+      border: 1px solid #9bb6c5;
+      border-radius: 6px;
+      background: white;
+      color: #243746;
+      font-size: 14px;
+    }
+
+    .calculadora_campos input:focus,
+    .calculadora_campos select:focus {
+      outline: none;
+      border-color: #2d6187;
+      box-shadow: 0 0 0 3px rgba(45, 97, 135, 0.18);
+    }
+
+    .calculadora_resultado {
+      margin: 10px 0 0;
+      color: #1f3f57;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #tela_bloco_notas {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2500;
+      padding: 24px;
+      box-sizing: border-box;
+      background: rgba(14, 31, 43, 0.68);
+      font-family: Arial, sans-serif;
+    }
+
+    .bloco_notas_janela {
+      display: flex;
+      flex-direction: column;
+      width: min(1200px, 100%);
+      height: min(850px, 100%);
+      margin: 0 auto;
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgb(160, 205, 222), rgb(132, 180, 200));
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .bloco_notas_topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .bloco_notas_topo h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    #fechar_bloco_notas {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    .bloco_notas_corpo {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      padding: 16px;
+      gap: 12px;
+    }
+
+    .bloco_notas_barra {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.36);
+    }
+
+    .bloco_notas_barra button,
+    .bloco_notas_barra select,
+    .bloco_notas_barra input {
+      width: 40px;
+      height: 38px;
+      box-sizing: border-box;
+      padding: 4px;
+      border: 1px solid rgba(45, 97, 135, 0.5);
+      border-radius: 7px;
+      background: white;
+      color: #1f3f57;
+      font-size: 15px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .bloco_notas_barra button {
+      font-weight: bold;
+    }
+
+    #bloco_notas_tamanho {
+      writing-mode: vertical-lr;
+      height: 120px;
+      padding: 8px 2px;
+    }
+
+    #bloco_notas_cor {
+      padding: 3px;
+    }
+
+    .bloco_notas_editor_wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    #bloco_notas_editor {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 20px;
+      box-sizing: border-box;
+      border: 1px solid #b5c8d3;
+      border-radius: 10px;
+      outline: none;
+      background: #fff;
+      color: #243746;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    #bloco_notas_editor:focus {
+      border-color: #2d6187;
+      box-shadow: 0 0 0 3px rgba(45, 97, 135, 0.18);
+    }
+
+    #bloco_notas_placeholder {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      color: #718096;
+      font-size: 15px;
+      line-height: 1.6;
+      pointer-events: none;
+    }
+
+    #bloco_notas_estado {
+      min-height: 18px;
+      padding: 0 18px 10px;
+      color: white;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      #tela_bloco_notas {
+        padding: 8px;
+      }
+
+      .bloco_notas_corpo {
+        flex-direction: column;
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .bloco_notas_barra {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 6px;
+      }
+
+      #bloco_notas_tamanho {
+        writing-mode: horizontal-tb;
+        width: 72px;
+        height: 38px;
+      }
+
+      .bloco_notas_editor_wrap {
+        flex: 1;
+      }
+
+      #bloco_notas_editor {
+        padding: 14px;
+      }
+
+      #bloco_notas_placeholder {
+        top: 14px;
+        left: 14px;
+        right: 14px;
+        font-size: 14px;
+      }
+    }
+
+    #calendario {
+      width: 1150px;
+      background-color: rgb(209, 202, 202); 
+
+      display: none;
+      grid-template-columns: repeat(7, 1fr); /* 7 colunas = dias da semana */
+      gap: 2px; /* espaço entre células, mostra o fundo preto como grelha */
+
+      position: absolute;
+      top: 125px;
+      left: 100px;
+      border: 2px solid black;
+
+      border-radius: 12px;
+      overflow: hidden; /* garante que os cantos arredondados "cortam" as células internas também */
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .dia {
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+      position: relative;
+      height: 250px;
+      border-radius: 0; /* fica reto internamente, só o contentor exterior arredonda */
+      transition: background-color 0.15s ease;
+    }
+
+    /* células do topo (nomes dos dias da semana), independentes das células dos dias */
+    .dia_semana {
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+      height: 65px;
+    }
+
+    .dia:hover {
+      background-color: #f5f5f5; /* leve destaque ao passar o rato, ajuda a localizar o dia */
+    }
+
+    .dia_clicavel {
+      cursor: pointer;
+    }
+
+    /* resumo do treino dentro da célula: ocupa o espaço entre o número do dia e o botão "notas" */
+    .preview_treino {
+      position: absolute;
+      top: 26px;      /* abaixo do número do dia e do "!" */
+      left: 4px;
+      right: 4px;
+      bottom: 36px;   /* acima do botão "notas" */
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      text-align: left;
+      color: #222;
+      scrollbar-width: thin;
+    }
+
+    .preview_titulo {
+      font-weight: bold;
+      color: #2d6187;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .preview_exercicio {
+      display: flex;
+      gap: 6px;
+      line-height: 1.35;
+    }
+
+    .preview_nome {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview_alerta {
+      flex-shrink: 0;
+      width: 13px;
+      height: 13px;
+      margin-top: 1px;
+      border-radius: 50%;
+      background-color: #ff4757;
+      color: white;
+      font-size: 9px;
+      font-weight: bold;
+      line-height: 13px;
+      text-align: center;
+      cursor: default;
+    }
+
+    .preview_separador {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 3px 0;
+      color: #2d6187;
+      font-weight: bold;
+      font-size: 10px;
+    }
+
+    .traco_preview {
+      flex: 1;
+      height: 1px;
+      background-color: #2d6187;
+    }
+
+    .simbolo_campos_vazios {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background-color: #ff4757; 
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      cursor: default;
+  }
+
+    .dia button {
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .linha_botoes_dia {
+      display: flex;
+      gap: 4px;
+      width: 82%;
+      position: absolute;
+      bottom: 9px;
+    }
+
+    .linha_botoes_dia button {
+      width: 30px;      /* largura fixa */
+      height: 20px;      /* altura fixa */
+      padding: 0;        /* anula o padding: 8px 16px do button genérico */
+      font-size: 10px;
+      line-height: 1;
+      flex: 1;           /* opcional: faz os dois botões dividirem o espaço disponível */
+    }
+
+    .botao_notas_cal {
+      width: 20px;
+      height: 18px;
+      font-size: 9px;
+      padding: 0;
+      filter: brightness(0.88);
+    }
+
+    .botao_notas_cal:hover {
+      filter: brightness(0.78);
+    }
+
+    #tela_editar_treino {
+      width: 1000px;
+      height: 790px;
+      background-color: rgb(146, 192, 211);
+      margin: auto auto;
+      position: absolute;
+      top: 495px;
+      left: 660px;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    #texto_edit_treino {
+      font-size: 20px;
+      font-weight: bold;
+      color: rgb(255, 255, 255);
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    #botao_modo_treino {
+      display: block;
+      margin: 20px 30px 0 30px;
+      padding: 8px 16px;
+      background-color: #2d6187;
+      color: white;
+      font-weight: bold;
+    }
+
+    #botao_modo_treino:hover {
+      background-color: #24506f;
+    }
+
+    #botao_fechar_tela_horas,
+    #botão_fechar_tela_editar_treino {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    #botao_mes_anterior,
+    #botao_mes_seguinte {
+      position: absolute;
+      top: 260px;
+      height: 1000px;
+      width: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #botao_mes_anterior {
+      left: 33px;
+      filter: brightness(0.88);
+    }
+
+    #botao_mes_seguinte {
+      left: 1260px;
+      filter: brightness(0.88);
+    }
+
+    #botao_mes_anterior:hover,
+    #botao_mes_seguinte:hover {
+      filter: brightness(0.78);
+    }
+
+    #titulo_calendario {
+      position: absolute;
+      top: 80px;   /* um pouco acima do calendário */
+      left: 200px;
+      width: 1000px; /* mesma largura do calendário */
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+
+    .campo {
+      margin: 20px 30px 0 40px;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .campo input {
+      width: 280px;
+      margin-left: 0px;
+      padding: 8px;
+    }
+
+    /* caixa de exercício com os campos dispostos em sequência */
+    .linha_exercicio {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 12px 40px 12px 60px;
+        padding: 14px 16px;
+        min-width: 0;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.22);
+        border: 2px solid rgba(45, 97, 135, 0.55);
+        border-radius: 18px;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        color: #1f3f57;
+    }
+
+    .ex_agrupar_selecao {
+        position: absolute;
+        top: 14px;
+        left: -40px;
+        z-index: 2;
+        display: block;
+        width: 17px;
+        height: 17px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    #lista_exercicios {
+        position: relative;
+    }
+
+    .ex_ligacoes_svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        overflow: visible;
+        pointer-events: none;
+    }
+
+    .ex_ligacao_vertical,
+    .ex_ligacao_horizontal {
+        fill: none;
+        stroke: rgba(45, 97, 135, 0.55);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .ex_coluna_esquerda {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+        width: 100%;
+    }
+
+    /* o cabeçalho mantém o número, o alerta e o nome alinhados */
+    .ex_topo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 26px;
+        min-width: 0;
+        padding-right: 190px;
+        box-sizing: border-box;
+    }
+
+    .ex_numero {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border-radius: 50%;
+        background-color: #2d6187;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ex_numero:disabled {
+        cursor: default;
+        opacity: 0.55;
+    }
+
+    /* "!" when any reps or intensity field in the exercise table is empty */
+    .ex_alerta {
+        display: none;
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        background-color: #ff4757;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        align-items: center;
+        justify-content: center;
+        cursor: default;
+    }
+
+    .ex_selecionado {
+        min-width: 0;
+        font-size: 14px;
+        white-space: normal;      /* se mesmo assim não couber, quebra de linha em vez de cortar */
+        overflow-wrap: anywhere;
+    }
+
+    .ex_botao_dicionario {
+        display: none;
+        flex-shrink: 0;
+        width: 70px;
+        max-width: 70px;
+        padding: 2px 3px;
+        font-size: 9px;
+        line-height: 1.1;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        box-sizing: border-box;
+        cursor: pointer;
+    }
+
+    .ex_selecionado.sem_escolha {
+        font-style: italic;
+        color: #4d7790;
+    }
+
+    .ex_busca {
+        position: relative; /* a lista de sugestões abre por baixo, por cima do resto */
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ex_busca_filtros {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 6px;
+    }
+
+    .ex_busca_filtros button {
+        min-height: 34px;
+        padding: 6px 9px;
+        border: 1px solid #9bb6c5;
+        background: #f7fbfd;
+        color: #2d6187;
+        font-size: 12px;
+        white-space: nowrap;
+        box-shadow: none;
+    }
+
+    .ex_busca_filtros button.ativo {
+        border-color: #2d6187;
+        background: #dbeafe;
+        color: #1e40af;
+        font-weight: bold;
+    }
+
+    .ex_busca label {
+        flex-shrink: 0;
+        width: 70px;
+        line-height: 1.15;
+    }
+
+    .ex_input_busca {
+        flex: 1;
+        min-width: 0;
+        padding: 6px;
+    }
+
+    /* lista de sugestões: só aparece ao escrever, sobreposta ao conteúdo, com cantos retos */
+    .ex_sugestoes {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 130px;
+        overflow-y: auto;
+        z-index: 10;
+        background-color: white;
+        border: 2px solid #2d6187;
+        border-radius: 0;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        color: #222;
+    }
+
+    .ex_sugestao {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 5px 8px;
+        cursor: pointer;
+    }
+
+    .ex_sugestao:hover {
+        background-color: #e3eef5;
+    }
+
+    .ex_sugestao.escolhida {
+        background-color: #2d6187;
+        color: white;
+    }
+
+    .ex_sugestao small {
+        flex-shrink: 0;
+        color: #667;
+    }
+
+    .ex_sugestao.escolhida small {
+        color: #dbe8f0;
+    }
+
+    .ex_usar_mesmo_assim {
+        border-top: 1px solid #c7d6e0;
+        font-weight: bold;
+    }
+
+    .ex_vazio {
+        padding: 8px;
+        font-style: italic;
+        color: #778;
+    }
+
+    .ex_label_detalhes {
+        margin-top: 4px;
+    }
+
+    .ex_detalhes_execucao {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .ex_textarea {
+        width: 100%;
+        height: 100px;
+        box-sizing: border-box;
+        padding: 6px;
+        resize: none;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+    }
+
+    .ex_contador {
+        text-align: right;
+        font-size: 11px;
+        color: #35637f;
+    }
+
+    /* stipulated daily RM + unidade */
+    .ex_rm {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .ex_rm label {
+        flex-shrink: 0;
+    }
+
+    .ex_rm_valor {
+        width: 90px;
+        padding: 6px;
+    }
+
+    .ex_rm_unidade {
+        padding: 6px;
+        cursor: pointer;
+    }
+
+    /* tabela de séries */
+    .ex_area_tabela {
+        width: 100%;
+        min-width: 0;
+        margin-top: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        align-content: start;
+        gap: 6px;
+    }
+
+    .ex_tabela_scroll {
+        grid-column: 1;
+        grid-row: 1;
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .ex_tabela_conteudo {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .ex_tabela {
+        flex: 0 0 auto;
+        border-collapse: collapse;
+        background-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .ex_tabela th,
+    .ex_tabela td {
+        border: 2px solid #2d6187;
+        padding: 3px 5px;
+        text-align: center;
+    }
+
+    .ex_tabela th {
+        background-color: rgba(45, 97, 135, 0.18);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .ex_tabela td {
+        padding: 2px;
+    }
+
+    .ex_th_secao_serie {
+        width: 30px;
+        min-width: 30px;
+        padding: 0 !important;
+    }
+
+    .ex_tabela tbody .ex_th_secao_serie {
+        position: relative;
+        height: 56px;
+    }
+
+    .ex_rotulo_secao_serie {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        white-space: nowrap;
+        transform: translate(-50%, -50%) rotate(-90deg);
+    }
+
+    .ex_th_sets {
+        min-width: 58px;
+    }
+
+    .ex_cel_sets {
+        width: 52px;
+        padding: 4px 2px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .ex_cel_reps,
+    .ex_cel_int {
+        width: 56px;
+        padding: 4px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .ex_tipo_serie {
+        max-width: 82px;
+        font-size: 11px;
+        padding: 1px;
+        cursor: pointer;
+    }
+
+    .ex_cel_valor_serie {
+        white-space: nowrap;
+    }
+
+    .ex_cel_valor_serie .ex_cel_reps {
+        width: 42px;
+    }
+
+    .ex_sufixo_serie {
+        margin-left: 2px;
+        font-size: 10px;
+    }
+
+    .ex_unidade_secao {
+        font-size: 11px;
+        padding: 1px;
+        cursor: pointer;
+    }
+
+    .ex_botoes_colunas {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .ex_botoes_linhas {
+        grid-column: 1;
+        grid-row: 2;
+        display: flex;
+        gap: 6px;
+    }
+
+    .ex_botao_tabela {
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        font-size: 16px;
+        line-height: 1;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .ex_botao_tabela:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .ex_acoes {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ex_botao_mover {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        font-size: 9px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .ex_botao_remover {
+        padding: 3px 10px;
+        cursor: pointer;
+    }
+
+    .linha_separador {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 14px 40px;
+    }
+
+    .input_nome_sep {
+        flex: 0 1 260px;
+        min-width: 100px;
+        padding: 6px;
+        box-sizing: border-box;
+        font-weight: bold;
+        color: #1f3f57;
+    }
+
+    .traco_separador {
+        flex: 1;
+        height: 2px;
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 1px;
+    }
+
+    .botao_hora_separador {
+        flex-shrink: 0;
+    }
+
+    .preview_nome_secao {
+        flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tela_editar_treino.modo_leitura #botao_guardar_treino,
+    #tela_editar_treino.modo_leitura #botao_limpar_treino,
+    #tela_editar_treino.modo_leitura #botao_adicionar_exercicio,
+    #tela_editar_treino.modo_leitura #botao_separar,
+    #tela_editar_treino.modo_leitura #botao_agrupar_exercicios,
+    #tela_editar_treino.modo_leitura .ex_busca,
+    #tela_editar_treino.modo_leitura .ex_contador,
+    #tela_editar_treino.modo_leitura .ex_alerta,
+    #tela_editar_treino.modo_leitura .ex_botao_dicionario,
+    #tela_editar_treino.modo_leitura .ex_acoes,
+    #tela_editar_treino.modo_leitura .ex_botoes_colunas,
+    #tela_editar_treino.modo_leitura .ex_botoes_linhas,
+    #tela_editar_treino.modo_leitura .botao_mover_separador,
+    #tela_editar_treino.modo_leitura .botao_remover_separador {
+        display: none !important;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_agrupar_selecao,
+    #tela_editar_treino.modo_leitura .ex_ligacoes_svg {
+        display: none !important;
+    }
+
+    #tela_editar_treino.modo_leitura .linha_exercicio {
+        margin-left: 40px;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_topo {
+        padding-right: 0;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_textarea,
+    #tela_editar_treino.modo_leitura .ex_rm_valor,
+    #tela_editar_treino.modo_leitura .ex_cel_sets,
+    #tela_editar_treino.modo_leitura .ex_cel_reps,
+    #tela_editar_treino.modo_leitura .ex_cel_int,
+    #tela_editar_treino.modo_leitura .input_nome_sep {
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: #17364d;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_textarea {
+        padding-left: 0;
+    }
+
+    #tela_editar_treino.modo_leitura input::placeholder,
+    #tela_editar_treino.modo_leitura textarea::placeholder {
+        color: transparent;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_tabela {
+        background: rgba(255, 255, 255, 0.55);
+    }
+
+    #tela_editar_treino.modo_leitura .ex_sufixo_serie {
+        display: none !important;
+    }
+
+    #tela_editar_treino.modo_leitura select {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: #17364d;
+        opacity: 1;
+        padding-left: 0;
+        padding-right: 0;
+        cursor: default;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_cel_sets::-webkit-inner-spin-button,
+    #tela_editar_treino.modo_leitura .ex_cel_sets::-webkit-outer-spin-button {
+        display: none;
+    }
+
+    #tela_editar_treino.modo_leitura .botao_hora_separador:disabled {
+        background: transparent;
+        box-shadow: none;
+        color: #1f3f57;
+        opacity: 1;
+    }
+
+    #tela_info_exercicio {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        background: rgba(14, 31, 43, 0.58);
+        font-family: Arial, sans-serif;
+    }
+
+    .caixa_info_exercicio {
+        position: relative;
+        width: min(520px, 100%);
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 28px;
+        box-sizing: border-box;
+        border: 2px solid white;
+        border-radius: 14px;
+        background: linear-gradient(160deg, rgb(160, 205, 222), rgb(132, 180, 200));
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        color: #17364d;
+    }
+
+    #titulo_info_exercicio {
+        margin: 0 32px 20px 0;
+        color: white;
+        font-size: 22px;
+    }
+
+    .campo_info_exercicio {
+        margin: 14px 0;
+        overflow-wrap: anywhere;
+    }
+
+    .campo_info_exercicio strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #17364d;
+    }
+
+    #link_info_exercicio {
+        color: #124e78;
+    }
+
+    #fechar_info_exercicio {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        font-weight: bold;
+    }
+
+    .botao_mover_separador,
+    .botao_remover_separador {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        font-size: 11px;
+        border-radius: 50%;
+    }
+
+    .botao_mover_separador {
+        font-size: 9px;
+        margin-left: -4px; /* aproxima as setas, o gap do flex já separa do resto */
+    }
+
+    #botao_adicionar_exercicio,
+    #botao_separar,
+    #botao_guardar_treino,
+    #botao_limpar_treino {
+        display: block;
+        margin: 20px 30px;
+        padding: 8px 16px;
+        cursor: pointer;
+    }
+
+    .botoes_treino_acoes {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 30px;
+    }
+
+    .botoes_treino_acoes #botao_guardar_treino,
+    .botoes_treino_acoes #botao_limpar_treino {
+        margin: 0;
+    }
+
+    .linha_botoes_exercicio {
+        display: flex;
+        align-items: center;
+    }
+
+    .linha_botoes_exercicio #botao_adicionar_exercicio {
+        margin-right: 0;
+    }
+
+    .linha_botoes_exercicio #botao_separar {
+        margin-left: 10px;
+    }
+
+    .linha_botoes_exercicio #botao_agrupar_exercicios {
+        margin: 20px 0 20px -18px;
+    }
+
+    #botao_agrupar_exercicios {
+        background-color: #c0392b;
+        color: white;
+        font-weight: bold;
+    }
+
+    #botao_agrupar_exercicios.agrupamento_pronto {
+        background-color: #27ae60;
+    }
+
+    #botao_agrupar_exercicios:hover {
+        filter: brightness(0.92);
+    }
+
+    .campo_autoavaliacao_treino {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 30px 20px;
+        color: white;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+    }
+
+    .campo_autoavaliacao_treino[hidden] {
+        display: none;
+    }
+
+    #autoavaliacao_treino {
+        min-width: 150px;
+        padding: 6px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 6px;
+        background: white;
+        color: #222;
+    }
+
+    #lista_exercicios {
+      max-height: 520px;
+      overflow-y: auto;
+    }
+
+
+    #tela_notas_dia {
+      width: 500px;
+      height: 400px;
+      background-color: rgb(120, 160, 180);
+      border: 3px solid white;
+      position: absolute;
+      top: 360px;
+      left: 700px;
+      transform: translate(-50%, -50%);
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+      z-index: 2000;
+    }
+
+    #campo_notas_dia {
+      width: 100%;
+      height: 220px;
+      padding: 10px;
+      font-size: 14px;
+      box-sizing: border-box;
+      resize: none;
+      margin-bottom: 15px;
+      font-family: Arial, sans-serif;
+    }
+    .botoes_notas_dia {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .botoes_notas_dia {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    #tela_horas {
+      width: 300px;
+      height: 200px;
+      background-color: rgb(146, 192, 211);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 9000;
+      transform: translate(-50%, -50%);
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+      box-sizing: border-box;
+      display: none;
+    }
+
+    .campo_horas {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .campo_horas select {
+        padding: 8px 12px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .separador_horas {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    #botao_confirmar_horas {
+        padding: 8px 20px;
+        cursor: pointer;
+    }
+
+    #tela_editar_treino,
+    #tela_horas {
+        border-radius: 14px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        background: linear-gradient(160deg, rgb(160, 205, 222), rgb(132, 180, 200));
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    #tela_notas_dia {
+        border-radius: 14px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        background: linear-gradient(160deg, rgb(135, 175, 195), rgb(105, 145, 165));
+        border: 2px solid rgba(255, 255, 255, 0.4); /* mantém destaque, já que é um "popup sobre popup" */
+    }
+
+    button {
+      border-radius: 8px;
+      border: none;
+      background-color: #f0f0f0;
+      padding: 8px 16px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    button:hover {
+        background-color: #e2e2e2;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        transform: translateY(-1px);
+    }
+
+    button:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* botões de ação principal (guardar, confirmar) com destaque de cor */
+    #botao_guardar_treino,
+    #botao_limpar_treino,
+    #botao_confirmar_horas {
+        background-color: #2d6187;
+        color: white;
+        font-weight: bold;
+    }
+
+    #botao_guardar_treino:hover,
+    #botao_limpar_treino:hover,
+    #botao_confirmar_horas:hover {
+        background-color: #24506f;
+    }
+
+    /* botões de fechar/remover, com aviso visual */
+    #botão_fechar_tela_editar_treino,
+    #botao_fechar_tela_horas {
+        background-color: rgba(255, 255, 255, 0.85);
+        font-weight: bold;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%; /* botão "X" redondo, mais elegante que quadrado */
+    }
+
+    #botão_fechar_tela_editar_treino:hover,
+    #botao_fechar_tela_horas:hover {
+        background-color: white;
+    }
+
+    /* ==========================================================================
+       ESTILOS: DICIONÁRIO DE EXERCÍCIOS
+       ========================================================================== */
+    #tela_dicionario_exercicios {
+      width: 1250px;
+      position: absolute;
+      top: 95px;
+      left: 50px;
+      background-color: #ffffff;
+      border: 2px solid #2d6187;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      display: none;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      z-index: 1000;
+    }
+
+    .barra_nav_dicionario {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: linear-gradient(135deg, #2d6187, #1b4564);
+      padding: 10px 14px;
+      color: white;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .nav_titulo_dic {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .nav_grupo_pesquisa {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0 4px;
+    }
+
+    .nav_input_pesquisa {
+      flex: 1 1 120px;
+      min-width: 80px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+      outline: none;
+      background: #ffffff;
+      color: #222;
+    }
+
+    /* Dropdown próprio dos filtros (cada opção tem um "×" para a remover) */
+    .dd_filtro {
+      position: relative;
+      width: 125px;
+      flex-shrink: 0;
+    }
+
+    .dd_botao {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background-color: white;
+      color: #222;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      text-align: left;
+      box-shadow: none;
+      box-sizing: border-box;
+    }
+
+    .filtro_multi_chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .filtro_multi_chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      max-width: 100%;
+      padding: 2px 4px 2px 7px;
+      border: 1px solid #aed6f1;
+      border-radius: 12px;
+      background: #eaf2f8;
+      color: #1e40af;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .filtro_chip_remover {
+      flex: 0 0 18px;
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      padding: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #c0392b;
+      font-size: 15px;
+      line-height: 1;
+      box-shadow: none;
+    }
+
+    .filtro_chip_remover:hover {
+      background: #fceae8;
+      box-shadow: none;
+      transform: none;
+    }
+    .dd_botao:hover {
+      background-color: white;
+      box-shadow: none;
+      transform: none;
+    }
+    .dd_texto {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .dd_seta {
+      flex-shrink: 0;
+      font-size: 10px;
+      color: #555;
+    }
+
+    /* fixed: não é cortada pelo "overflow: hidden" da janela do dicionário */
+    .dd_lista {
+      display: none;
+      position: fixed;
+      z-index: 5000;
+      min-width: 220px;
+      max-height: 260px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1px solid #bdc3c7;
+      border-radius: 8px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #222;
+      padding: 4px;
+      box-sizing: border-box;
+      scrollbar-width: thin;
+    }
+
+    .dd_item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .dd_item:hover {
+      background-color: #edf5f9;
+    }
+    .dd_item.selecionado {
+      background-color: #dbeafe;
+      color: #1e40af;
+      font-weight: bold;
+    }
+    .dd_item_texto {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dd_item_x {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      padding: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #c0392b;
+      font-size: 15px;
+      font-weight: bold;
+      line-height: 1;
+      box-shadow: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dd_item_x:hover {
+      background-color: #fceae8;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Janela de aviso / confirmação da remoção */
+    .modal_remocao_fundo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 6000;
+      background: rgba(0, 0, 0, 0.45);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal_remocao_caixa {
+      width: 440px;
+      max-width: 90vw;
+      background: #ffffff;
+      border: 2px solid #2d6187;
+      border-radius: 14px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+      padding: 18px 22px;
+      font-family: Arial, sans-serif;
+      color: #2c3e50;
+      box-sizing: border-box;
+    }
+
+    .modal_remocao_caixa h3 {
+      margin: 0 0 10px 0;
+      text-align: center;
+      font-size: 18px;
+      color: #b9770e;
+    }
+
+    .modal_remocao_caixa p {
+      margin: 0 0 10px 0;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .modal_remocao_lista {
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      background: #f7fafc;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      scrollbar-width: thin;
+    }
+    .modal_remocao_lista div {
+      padding: 2px 0;
+    }
+    .modal_remocao_aviso {
+      color: #c0392b;
+      font-size: 12px !important;
+      font-weight: bold;
+      display: none;
+    }
+
+    .modal_remocao_pergunta {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 4px !important;
+    }
+
+    .modal_remocao_botoes {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .btn_modal_cancelar,
+    .btn_modal_confirmar {
+      min-width: 100px;
+      padding: 8px 18px;
+      font-weight: bold;
+      color: white;
+    }
+    .btn_modal_cancelar { background-color: #c0392b; }
+    .btn_modal_cancelar:hover { background-color: #a93226; }
+    .btn_modal_confirmar { background-color: #27ae60; }
+    .btn_modal_confirmar:hover { background-color: #219653; }
+
+    .filtros_exercicio_fundo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5900;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      background: rgba(14, 31, 43, 0.36);
+      font-family: Arial, sans-serif;
+    }
+
+    .filtros_exercicio_janela {
+      display: flex;
+      flex-direction: column;
+      width: min(760px, 100%);
+      max-height: min(88vh, 800px);
+      max-height: min(88dvh, 800px);
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgb(160, 205, 222), rgb(132, 180, 200));
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .filtros_exercicio_topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .filtros_exercicio_topo h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .filtros_exercicio_topo button {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    .filtros_exercicio_corpo {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      min-height: 0;
+      padding: 12px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .filtros_exercicio_grupo {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid rgba(45, 97, 135, 0.3);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .filtros_exercicio_grupo h3 {
+      margin: 0 0 8px;
+      color: #2d6187;
+      font-size: 15px;
+    }
+
+    .filtros_exercicio_opcoes {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 42vh;
+      max-height: 42dvh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .filtro_multi_opcao {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-height: 36px;
+      padding: 2px 4px;
+      border-radius: 6px;
+    }
+
+    .filtro_multi_opcao:hover {
+      background: rgba(45, 97, 135, 0.08);
+    }
+
+    .filtro_multi_opcao label {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 8px;
+      min-width: 0;
+      color: #243746;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .filtro_multi_opcao input {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      margin: 0;
+      accent-color: #2d6187;
+    }
+
+    .filtros_exercicio_acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .filtros_exercicio_acoes button {
+      min-height: 40px;
+      padding: 8px 14px;
+    }
+
+    .filtros_exercicio_acoes .filtros_exercicio_concluir {
+      background: #2d6187;
+      color: white;
+      font-weight: bold;
+    }
+
+    .modal_limpar_treino_fundo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 7000;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal_limpar_treino_caixa {
+      width: 440px;
+      max-width: 90vw;
+      padding: 22px;
+      border: 2px solid #c0392b;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    .modal_limpar_treino_caixa p {
+      margin: 0 0 20px;
+      color: #2c3e50;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .modal_limpar_treino_botoes {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .modal_limpar_treino_botoes button {
+      min-width: 100px;
+      padding: 8px 18px;
+      color: white;
+      font-weight: bold;
+    }
+
+    #cancelar_limpar_treino { background-color: #95a5a6; }
+    #cancelar_limpar_treino:hover { background-color: #7f8c8d; }
+    #confirmar_limpar_treino { background-color: #c0392b; }
+    #confirmar_limpar_treino:hover { background-color: #a93226; }
+
+    .nav_grupo_botoes {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .btn_nav_acao {
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      transition: background-color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .btn_nav_add {
+      background-color: #27ae60;
+      color: white;
+    }
+    .btn_nav_add:hover {
+      background-color: #219653;
+    }
+
+    .btn_nav_cat {
+      background-color: #8e44ad;
+      color: white;
+    }
+    .btn_nav_cat:hover {
+      background-color: #7d3c98;
+    }
+
+    .btn_nav_musc {
+      background-color: #e67e22;
+      color: white;
+    }
+    .btn_nav_musc:hover {
+      background-color: #ca6f1e;
+    }
+
+    .btn_nav_cal {
+      background-color: #2980b9;
+      color: white;
+    }
+    .btn_nav_cal:hover {
+      background-color: #2471a3;
+    }
+
+    .btn_nav_fechar {
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #222;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+    .btn_nav_fechar:hover {
+      background-color: white;
+    }
+
+    .corpo_dicionario {
+      padding: 16px 20px;
+      background-color: #f7fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+
+    /* Painel do Formulário Adicionar/Editar */
+    .painel_form_exercicio {
+      background: linear-gradient(160deg, #eaf2f8, #d4e6f1);
+      border: 1px solid #aed6f1;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .cabecalho_form_ex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(45, 97, 135, 0.2);
+      padding-bottom: 6px;
+    }
+
+    .cabecalho_form_ex h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #1b4564;
+    }
+
+    .btn_fechar_painel {
+      background: transparent;
+      border: none;
+      font-size: 15px;
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+      padding: 2px 6px;
+      box-shadow: none;
+    }
+    .btn_fechar_painel:hover {
+      color: #111;
+      background: transparent;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .msg_erro_formulario {
+      background-color: #fceae8;
+      border: 1px solid #f5b7b1;
+      color: #c0392b;
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .grid_form_exercicio {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 18px;
+      margin-bottom: 12px;
+    }
+
+    .campo_form {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .campo_form label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #2d6187;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Asterisco de campo obrigatório e Tooltip */
+    .asterisco_obrigatorio {
+      color: #e74c3c;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: help;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .asterisco_obrigatorio:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 140%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #1a252f;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: normal;
+      padding: 5px 9px;
+      border-radius: 5px;
+      white-space: nowrap;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    .asterisco_obrigatorio:hover::before {
+      content: "";
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1a252f;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* Linha do label de checkboxes com contador */
+    .linha_label_checkbox {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .linha_label_checkbox label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #2d6187;
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+
+    .contador_selecao {
+      font-size: 11px;
+      font-weight: bold;
+      color: #2d6187;
+      background-color: #eaf2f8;
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1px solid #aed6f1;
+    }
+
+    .contador_selecao.limite_atingido {
+      color: #c0392b;
+      background-color: #fceae8;
+      border-color: #f5b7b1;
+    }
+
+    /* Caixa de Checkboxes com Scroll */
+    .caixa_checkboxes {
+      background: #ffffff;
+      border: 1px solid #bdc3c7;
+      border-radius: 6px;
+      padding: 6px 8px;
+      max-height: 140px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px 8px;
+      scrollbar-width: thin;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .item_checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #2c3e50;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 4px;
+      transition: background-color 0.12s ease;
+      user-select: none;
+    }
+
+    .item_checkbox:hover {
+      background-color: #edf5f9;
+    }
+
+    .item_checkbox input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #2d6187;
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .item_checkbox.marcado {
+      background-color: #dbeafe;
+      font-weight: bold;
+      color: #1e40af;
+    }
+
+    /* Realce de campo com erro */
+    .campo_obrigatorio_erro {
+      border-color: #e74c3c !important;
+      box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.25) !important;
+    }
+
+    .campo_form input,
+    .campo_form select,
+    .campo_form textarea {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #bdc3c7;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      background: white;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .campo_form textarea {
+      height: 60px;
+      resize: none;
+    }
+
+    .linha_input_pr {
+      display: flex;
+      gap: 6px;
+    }
+
+    .linha_input_pr input {
+      flex: 1;
+    }
+
+    .linha_input_pr select {
+      width: 110px;
+    }
+
+    .linha_data_pr {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .linha_data_pr input {
+      width: 100%;
+      min-width: 0;
+    }
+
+    #tela_busca_tempo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+      background: rgba(14, 31, 43, 0.72);
+      font-family: Arial, sans-serif;
+    }
+
+    .busca_tempo_janela {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: min(1000px, 100%);
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgb(160, 205, 222), rgb(132, 180, 200));
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .busca_tempo_topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: white;
+    }
+
+    .busca_tempo_topo h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    #fechar_busca_tempo {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    .busca_tempo_data_nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 0 8px;
+      color: #17364d;
+    }
+
+    #data_treino_busca_tempo {
+      margin-right: auto;
+      font-size: 16px;
+    }
+
+    .busca_tempo_data_nav button {
+      width: 34px;
+      height: 30px;
+      padding: 0;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .busca_tempo_data_nav button:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+
+    .busca_tempo_conteudo {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 4px 8px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .busca_tempo_vazio {
+      padding: 24px;
+      color: #17364d;
+      text-align: center;
+    }
+
+    .busca_tempo_conteudo .linha_exercicio {
+      margin: 12px 8px;
+    }
+
+    .busca_tempo_conteudo .ex_topo {
+      padding-right: 0;
+    }
+
+    .busca_tempo_conteudo .ex_rm_valor,
+    .busca_tempo_conteudo .ex_cel_sets,
+    .busca_tempo_conteudo .ex_cel_reps,
+    .busca_tempo_conteudo .ex_cel_int,
+    .busca_tempo_conteudo .input_nome_sep {
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      color: #17364d;
+    }
+
+    .busca_tempo_conteudo .ex_textarea {
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      color: #17364d;
+    }
+
+    .busca_tempo_conteudo .ex_alerta {
+      display: none !important;
+    }
+
+    .busca_tempo_conteudo .ex_botoes_colunas,
+    .busca_tempo_conteudo .ex_botoes_linhas {
+      display: none;
+    }
+
+    .busca_tempo_conteudo .ex_tabela_scroll {
+      overflow: visible;
+    }
+
+    .busca_tempo_conteudo .ex_tabela {
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .busca_tempo_conteudo .ex_tabela select {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      color: #17364d;
+      opacity: 1;
+      padding-left: 0;
+      padding-right: 0;
+      cursor: default;
+    }
+
+    .busca_tempo_conteudo .ex_sufixo_serie {
+      display: none !important;
+    }
+
+    .linha_label_desc {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #contador_caracteres_descricao {
+      font-size: 11px;
+      color: #555;
+    }
+
+    .botoes_form_exercicio {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn_guardar_ex {
+      background-color: #2d6187;
+      color: white;
+      font-weight: bold;
+      padding: 8px 20px;
+    }
+    .btn_guardar_ex:hover {
+      background-color: #24506f;
+    }
+
+    .btn_cancelar_ex {
+      background-color: #95a5a6;
+      color: white;
+      padding: 8px 16px;
+    }
+    .btn_cancelar_ex:hover {
+      background-color: #7f8c8d;
+    }
+
+    /* Painel: Adicionar Categoria / Músculo */
+    .painel_add_opcao {
+      background: linear-gradient(160deg, #f5eef8, #ebdef0);
+      border: 1px solid #d2b4de;
+      border-radius: 12px;
+      padding: 14px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .painel_add_opcao.tipo_musculo {
+      background: linear-gradient(160deg, #fef5e7, #fdebd0);
+      border-color: #f5cba7;
+    }
+
+    .linha_add_opcao {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .linha_add_opcao label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #2d6187;
+      white-space: nowrap;
+    }
+
+    .linha_add_opcao input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #bdc3c7;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      background: white;
+    }
+
+    .btn_confirmar_add_opcao {
+      background-color: #27ae60;
+      color: white;
+      font-weight: bold;
+      padding: 8px 18px;
+      white-space: nowrap;
+    }
+    .btn_confirmar_add_opcao:hover {
+      background-color: #219653;
+    }
+
+    .msg_add_opcao {
+      display: none;
+      margin-top: 8px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .msg_add_opcao.erro {
+      display: block;
+      background-color: #fceae8;
+      border: 1px solid #f5b7b1;
+      color: #c0392b;
+    }
+    .msg_add_opcao.ok {
+      display: block;
+      background-color: #e9f7ef;
+      border: 1px solid #a9dfbf;
+      color: #1e8449;
+    }
+
+    /* Barra de informações da lista */
+    .subbarra_lista_info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 4px;
+    }
+
+    .texto_contador_exercicios {
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .btn_limpar_filtros {
+      background: none;
+      border: none;
+      color: #2d6187;
+      text-decoration: underline;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: none;
+    }
+    .btn_limpar_filtros:hover {
+      background: none;
+      color: #1b4564;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Lista vertical de exercícios */
+    .lista_vertical_exercicios {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 520px;
+      overflow-y: auto;
+      padding-right: 6px;
+      scrollbar-width: thin;
+    }
+
+    .linha_card_exercicio {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .selecao_busca_tempo {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: #2d6187;
+      cursor: pointer;
+    }
+
+    .card_exercicio_dicionario {
+      flex: 1;
+      min-width: 0;
+      background-color: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card_exercicio_dicionario:hover {
+      border-color: #a0aec0;
+      box-shadow: 0 4px 12px rgba(45, 97, 135, 0.12);
+    }
+
+    .card_ex_topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .card_ex_info_principal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card_ex_nome {
+      font-size: 17px;
+      font-weight: bold;
+      color: #1a365d;
+    }
+
+    .card_ex_tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .badge_categoria {
+      background-color: #ebf8ff;
+      color: #2b6cb0;
+      border: 1px solid #bee3f8;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .badge_musculo {
+      background-color: #feebc8;
+      color: #c05621;
+      border: 1px solid #fbd38d;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .badge_pr {
+      background-color: #fefcbf;
+      color: #975a16;
+      border: 1px solid #faf089;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .badge_pr_detalhe {
+      padding: 2px 8px;
+      border: 1px solid #cbd5e0;
+      border-radius: 12px;
+      background: #edf2f7;
+      color: #2d3748;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .card_ex_acoes {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn_card_edit {
+      background-color: #edf2f7;
+      color: #2d3748;
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e0;
+    }
+    .btn_card_edit:hover {
+      background-color: #e2e8f0;
+    }
+
+    .btn_card_delete {
+      background-color: #fff5f5;
+      color: #e53e3e;
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #feb2b2;
+    }
+    .btn_card_delete:hover {
+      background-color: #fed7d7;
+    }
+
+    .card_ex_descricao {
+      font-size: 13px;
+      color: #4a5568;
+      line-height: 1.4;
+      background-color: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 3px solid #2d6187;
+    }
+
+    .card_ex_rodape {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .link_video_ex {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #c53030;
+      background: #fff5f5;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid #feb2b2;
+      text-decoration: none;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .link_video_ex:hover {
+      background-color: #fed7d7;
+      color: #9b2c2c;
+    }
+
+    #titulo_painel_add_opcao {
+      margin: 0;
+      font-size: 15px;
+      color: #2d6187;
+    }
+
+    #texto_titulo_notas_dia,
+    #titulo_tela_horas {
+      color: white;
+    }
+
+    .msg_lista_vazia {
+      text-align: center;
+      padding: 40px 20px;
+      color: #718096;
+      background-color: white;
+      border-radius: 8px;
+      border: 2px dashed #cbd5e0;
+    }
+
+    .msg_lista_vazia_titulo {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: bold;
+    }

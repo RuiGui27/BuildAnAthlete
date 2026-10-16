@@ -1,0 +1,616 @@
+@media (max-width: 500px) {
+      :root {
+        --mobile-gutter: 10px;
+        --mobile-calendar-width: calc(200vw - (2 * var(--mobile-gutter)));
+        --mobile-editor-height: 98dvh;
+        --mobile-dictionary-top: 68px;
+        --mobile-dictionary-height: calc(100dvh - var(--mobile-dictionary-top) - 8px);
+        --mobile-note-height: 96dvh;
+        --mobile-toolbar-height: 48px;
+        --mobile-day-height: 140px;
+        --mobile-weekday-height: 42px;
+      }
+
+      .menu {
+        top: 12px;
+        left: var(--mobile-gutter);
+      }
+
+      .menu > button,
+      #botao_bloco_notas {
+        min-height: var(--mobile-toolbar-height);
+        padding: 10px 14px;
+        font-size: 16px;
+      }
+
+      #botao_bloco_notas {
+        top: 12px;
+        left: 112px;
+      }
+
+      #botao_calculadora {
+        position: fixed;
+        top: 12px;
+        right: var(--mobile-gutter);
+        left: auto;
+        min-height: var(--mobile-toolbar-height);
+        padding: 10px 14px;
+        font-size: 16px;
+      }
+
+      #calendario {
+        left: 1px;
+        width: var(--mobile-calendar-width);
+        box-sizing: border-box;
+      }
+
+      #titulo_calendario {
+        left: 0;
+        width: 100%;
+      }
+
+      #botao_mes_anterior {
+        left: var(--mobile-gutter);
+      }
+
+      #botao_mes_seguinte {
+        left: calc(var(--mobile-gutter) + var(--mobile-calendar-width) - 57px);
+        right: auto;
+      }
+
+      #botao_mes_anterior,
+      #botao_mes_seguinte {
+        top: 72px;
+        width: 40px;
+        height: 40px;
+        z-index: 1;
+      }
+
+      .dia {
+        height: var(--mobile-day-height);
+      }
+
+      .dia_semana {
+        height: var(--mobile-weekday-height);
+      }
+
+      #tela_editar_treino {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: calc(100vw - (2 * var(--mobile-gutter)));
+        height: var(--mobile-editor-height);
+        max-height: var(--mobile-editor-height);
+        overflow: auto;
+        transform: translate(-50%, -50%);
+        box-sizing: border-box;
+      }
+
+      #lista_exercicios {
+        width: 100%;
+        max-height: none;
+        overflow-x: hidden;
+        overflow-y: visible;
+        box-sizing: border-box;
+      }
+
+      .linha_exercicio {
+        width: auto;
+        min-width: 0;
+        min-height: 0;
+        margin: 12px 8px 12px 34px;
+        padding: 12px;
+        gap: 10px;
+        box-sizing: border-box;
+      }
+
+      .linha_separador {
+        margin-left: 30px;
+      }
+
+      .ex_agrupar_selecao {
+        left: -26px;
+      }
+
+      .ex_topo {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        padding-right: 0;
+      }
+
+      .ex_selecionado {
+        flex: 1;
+      }
+
+      .ex_botao_dicionario {
+        flex: 0 0 70px;
+        width: 70px;
+        max-width: 70px;
+      }
+
+      .ex_coluna_esquerda,
+      .ex_area_tabela,
+      .ex_detalhes_execucao {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .ex_busca {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 6px;
+      }
+
+      .ex_busca label {
+        width: auto;
+      }
+
+      .ex_input_busca {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        min-height: 42px;
+        font-size: 16px;
+      }
+
+      .ex_busca_filtros {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .ex_busca_filtros button {
+        min-width: 0;
+        min-height: 40px;
+        white-space: normal;
+      }
+
+      .filtros_exercicio_fundo {
+        padding: var(--mobile-gutter);
+        align-items: stretch;
+      }
+
+      .filtros_exercicio_janela {
+        width: 100%;
+        max-height: 100%;
+        border-radius: 10px;
+      }
+
+      .filtros_exercicio_topo {
+        padding: 8px 10px;
+      }
+
+      .filtros_exercicio_topo h2 {
+        font-size: 18px;
+      }
+
+      .filtros_exercicio_corpo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+        overflow-y: auto;
+      }
+
+      .filtros_exercicio_grupo {
+        padding: 8px;
+      }
+
+      .filtros_exercicio_opcoes {
+        max-height: min(30dvh, 230px);
+      }
+
+      .filtro_multi_opcao {
+        min-height: 42px;
+      }
+
+      .filtro_multi_opcao input {
+        width: 22px;
+        height: 22px;
+        flex-basis: 22px;
+      }
+
+      .filtros_exercicio_acoes {
+        justify-content: stretch;
+        padding: 8px;
+      }
+
+      .filtros_exercicio_acoes button {
+        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        padding: 8px;
+      }
+
+      .dd_botao {
+        min-height: 40px;
+      }
+
+      .filtro_multi_chips {
+        max-height: 68px;
+        overflow-y: auto;
+      }
+
+      .filtro_multi_chip {
+        font-size: 10px;
+      }
+
+      .ex_rm {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 6px;
+      }
+
+      .ex_rm_valor,
+      .ex_rm_unidade {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .ex_area_tabela {
+        grid-template-columns: minmax(0, 1fr);
+        margin-top: 0;
+      }
+
+      .ex_tabela_scroll {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+      }
+
+      .ex_tabela {
+        max-width: 100%;
+      }
+
+      .ex_textarea {
+        max-width: 100%;
+      }
+
+      .ex_acoes {
+        position: static;
+        align-self: flex-end;
+      }
+
+      #tela_editar_treino.modo_leitura .linha_exercicio {
+        margin-left: 8px;
+        margin-right: 34px;
+      }
+
+      #tela_dicionario_exercicios {
+        position: fixed;
+        top: var(--mobile-dictionary-top);
+        left: var(--mobile-gutter);
+        width: calc(100vw - (2 * var(--mobile-gutter)));
+        height: var(--mobile-dictionary-height);
+        max-height: var(--mobile-dictionary-height);
+        overflow: hidden;
+      }
+
+      #tela_calculadora,
+      #tela_busca_tempo {
+        padding: var(--mobile-gutter);
+        align-items: stretch;
+      }
+
+      .calculadora_janela,
+      .busca_tempo_janela {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 10px;
+      }
+
+      .calculadora_topo,
+      .busca_tempo_topo {
+        padding: 10px 12px;
+      }
+
+      .calculadora_topo h2,
+      .busca_tempo_topo h2 {
+        font-size: 19px;
+      }
+
+      .calculadora_corpo {
+        padding: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .calculadora_secao {
+        margin-top: 10px;
+        padding: 10px;
+      }
+
+      .calculadora_campos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .calculadora_campos label {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .calculadora_campos input,
+      .calculadora_campos select {
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      .calculadora_info_musculos {
+        font-size: 10px;
+      }
+
+      .busca_tempo_janela {
+        padding: 12px;
+      }
+
+      .busca_tempo_conteudo {
+        padding: 4px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .busca_tempo_conteudo .linha_exercicio {
+        margin: 10px 0;
+      }
+
+      .busca_tempo_conteudo .ex_area_tabela {
+        min-width: 0;
+      }
+
+      .busca_tempo_conteudo .ex_tabela_scroll {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .busca_tempo_conteudo .ex_detalhes_execucao {
+        min-width: 0;
+      }
+
+      .busca_tempo_data_nav button {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+      }
+
+      .barra_nav_dicionario {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      .nav_titulo_dic,
+      .nav_grupo_pesquisa,
+      .nav_grupo_botoes {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .nav_grupo_pesquisa {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0;
+      }
+
+      .nav_input_pesquisa {
+        grid-column: 1 / -1;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .dd_filtro {
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+      }
+
+      .nav_grupo_botoes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .nav_grupo_botoes .btn_nav_acao {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        margin: 0;
+        padding: 8px 4px;
+        line-height: 1.15;
+        white-space: normal;
+      }
+
+      .nav_grupo_botoes .btn_nav_add {
+        grid-row: 1;
+        grid-column: 1;
+      }
+
+      .nav_grupo_botoes .btn_nav_cat {
+        grid-row: 1;
+        grid-column: 2;
+      }
+
+      .nav_grupo_botoes .btn_nav_musc {
+        grid-row: 2;
+        grid-column: 1;
+      }
+
+      .nav_grupo_botoes .btn_nav_cal {
+        grid-row: 2;
+        grid-column: 2;
+      }
+
+      .corpo_dicionario {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      .linha_add_opcao {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .linha_add_opcao label,
+      .linha_add_opcao input,
+      .linha_add_opcao .btn_confirmar_add_opcao {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .linha_add_opcao .btn_confirmar_add_opcao {
+        align-self: flex-start;
+      }
+
+      .grid_form_exercicio {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+          "nome"
+          "pr"
+          "bw"
+          "pr-date"
+          "categoria"
+          "musculo"
+          "descricao"
+          "link";
+      }
+
+      #grupo_campo_nome {
+        grid-area: nome;
+      }
+
+      #grupo_campo_categoria {
+        grid-area: categoria;
+      }
+
+      #grupo_campo_pr {
+        grid-area: pr;
+      }
+
+      #grupo_campo_bw_pr {
+        grid-area: bw;
+      }
+
+      #grupo_campo_pr_data {
+        grid-area: pr-date;
+      }
+
+      #grupo_campo_musculo {
+        grid-area: musculo;
+      }
+
+      .campo_link_grupo {
+        grid-area: link;
+      }
+
+      .campo_descricao_grupo {
+        grid-area: descricao;
+      }
+
+      .linha_input_pr select {
+        width: 110px;
+      }
+
+      .campo_descricao_grupo textarea {
+        min-height: 80px;
+      }
+
+      #tela_bloco_notas {
+        padding: var(--mobile-gutter);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .bloco_notas_janela {
+        width: 92%;
+        height: min(var(--mobile-note-height), calc(100dvh - (2 * var(--mobile-gutter))));
+        max-height: var(--mobile-note-height);
+        box-sizing: border-box;
+      }
+
+      #tela_horas {
+        width: min(300px, calc(100vw - (2 * var(--mobile-gutter))));
+        max-width: calc(100vw - (2 * var(--mobile-gutter)));
+        max-height: calc(100dvh - (2 * var(--mobile-gutter)));
+        padding: 16px;
+      }
+
+      .campo_horas select {
+        min-height: 44px;
+      }
+
+      #botao_confirmar_horas,
+      #botao_fechar_tela_horas {
+        min-height: 40px;
+      }
+
+      .linha_separador {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .linha_separador .input_nome_sep {
+        flex: 1 1 100%;
+        min-width: 0;
+      }
+
+      .linha_separador .botao_hora_separador {
+        flex: 1 1 auto;
+        min-height: 40px;
+      }
+
+      .linha_separador .traco_separador {
+        display: none;
+      }
+
+      .linha_card_exercicio {
+        gap: 8px;
+      }
+
+      .selecao_busca_tempo {
+        width: 24px;
+        height: 24px;
+      }
+
+      .card_exercicio_dicionario {
+        padding: 12px;
+      }
+
+      .card_ex_topo {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .card_ex_acoes {
+        width: 100%;
+      }
+
+      .card_ex_acoes button {
+        flex: 1;
+        min-height: 38px;
+      }
+
+      .card_ex_rodape {
+        flex-wrap: wrap;
+      }
+
+      .caixa_info_exercicio {
+        width: 100%;
+        max-height: calc(100dvh - (2 * var(--mobile-gutter)));
+        padding: 20px;
+        box-sizing: border-box;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }

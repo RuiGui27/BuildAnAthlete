@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BuildAnAthlete</title>
+
+  <link rel="stylesheet" href="desktop.css">
+  <link rel="stylesheet" href="mobile.css" media="(max-width: 500px)">
+  <link rel="stylesheet" href="mobile-small.css" media="(max-width: 360px)">
+ 
+</head>
+
+<body>
+  <div id="botão_menu" class="menu">
+    <button>Menus</button>
+
+    <div class="opcoes">
+        <a href="#" onclick="abrir_calendario(); return false;">Workout schedule</a>
+        <a href="#" onclick="abrir_dicionario_exercicios(); return false;">Dictionary of exercises</a>
+        <a href="#" onclick="alert('This feature has not yet been implemented!'); return false;">Create Athlete</a>
+        <a href="#" onclick="alert('This feature has not yet been implemented!'); return false;">Athlete</a>
+    </div>
+  </div>
+
+  <button type="button" id="botao_bloco_notas" onclick="abrir_bloco_notas()">Note Block</button>
+  <button type="button" id="botao_calculadora" onclick="abrir_calculadora()">Calc</button>
+
+  <button id="botao_mes_anterior" onclick="mudar_mes('-')"><</button>
+  <p id="titulo_calendario"></p>
+  <div id="calendario"></div>
+  <button id="botao_mes_seguinte" onclick="mudar_mes('+')">></button>
+
+  <!-- TELA: DICIONÁRIO DE EXERCÍCIOS -->
+  <div id="tela_dicionario_exercicios">
+    <!-- Barra de Navegação Horizontal -->
+    <div class="barra_nav_dicionario">
+      <div class="nav_titulo_dic">
+        <span>📚 Dictionary of Exercises</span>
+      </div>
+
+      <div class="nav_grupo_pesquisa">
+        <input type="text" id="filtro_pesquisa_exercicio" class="nav_input_pesquisa" placeholder="Search by name, muscle, category..." oninput="filtrar_exercicios_dicionario()">
+        <div id="filtro_categoria_exercicio" class="dd_filtro" data-tipo="categoria" data-padrao="All Categories"></div>
+        <div id="filtro_musculo_exercicio" class="dd_filtro" data-tipo="musculo" data-padrao="All Muscles"></div>
+      </div>
+
+      <div class="nav_grupo_botoes">
+        <button id="btn_toggle_form_exercicio" class="btn_nav_acao btn_nav_add" onclick="alternar_form_exercicio()">➕ Add Exercise</button>
+        <button id="btn_toggle_add_categoria" class="btn_nav_acao btn_nav_cat" onclick="alternar_painel_add_opcao('categoria')" title="Create a new category">🏷️ Add Category</button>
+        <button id="btn_toggle_add_musculo" class="btn_nav_acao btn_nav_musc" onclick="alternar_painel_add_opcao('musculo')" title="Create a new muscle (e.g. Shoulders - Lateral)">💪 Add Muscle</button>
+        <button id="btn_busca_tempo" class="btn_nav_acao btn_nav_cal" onclick="abrir_busca_tempo()" title="Search through time">Search through time 0/3</button>
+      </div>
+    </div>
+
+    <!-- Conteúdo da Tela do Dicionário -->
+    <div class="corpo_dicionario">
+      <!-- Painel: Adicionar Categoria / Músculo -->
+      <div id="painel_add_opcao" class="painel_add_opcao">
+        <div class="cabecalho_form_ex">
+          <h3 id="titulo_painel_add_opcao">Add Category</h3>
+          <button type="button" class="btn_fechar_painel" onclick="alternar_painel_add_opcao(null, false)">✕</button>
+        </div>
+        <div class="linha_add_opcao">
+          <label id="label_nova_opcao" for="campo_nova_opcao">New category:</label>
+          <input type="text" id="campo_nova_opcao" maxlength="50" placeholder="e.g. Plyometrics" onkeydown="if (event.key === 'Enter') guardar_nova_opcao()">
+          <button class="btn_confirmar_add_opcao" onclick="guardar_nova_opcao()">➕ Add</button>
+        </div>
+        <div id="msg_add_opcao" class="msg_add_opcao"></div>
+      </div>
+
+      <!-- Painel de Adicionar / Editar Exercício -->
+      <div id="painel_form_exercicio" class="painel_form_exercicio">
+        <div class="cabecalho_form_ex">
+          <h3 id="titulo_form_exercicio">Add New Exercise</h3>
+        </div>
+
+        <div id="msg_erro_formulario" class="msg_erro_formulario"></div>
+
+        <div class="grid_form_exercicio">
+          <div class="campo_form" id="grupo_campo_nome">
+            <label for="campo_ex_nome">
+              Exercise Name:
+            </label>
+            <input type="text" id="campo_ex_nome" maxlength="50" placeholder="e.g. Bench Press, Squat, Box Jump" oninput="limpar_erro_campo('campo_ex_nome')">
+          </div>
+
+          <div class="campo_form" id="grupo_campo_pr">
+            <label for="campo_ex_pr_valor">
+              Personal Record (PR):
+            </label>
+            <div class="linha_input_pr">
+              <input type="number" min="0" step="any" id="campo_ex_pr_valor" placeholder="PR value (e.g. 100, 2.5)" oninput="limpar_erro_campo('campo_ex_pr_valor')">
+              <select id="campo_ex_pr_unidade"></select>
+            </div>
+          </div>
+
+          <div class="campo_form" id="grupo_campo_bw_pr">
+            <label for="campo_ex_bw_pr_valor">
+              BW when you hit PR:
+            </label>
+            <div class="linha_input_pr">
+              <input type="number" min="0" step="any" id="campo_ex_bw_pr_valor" placeholder="Body weight at PR" oninput="limpar_erro_campo('campo_ex_bw_pr_valor')">
+              <select id="campo_ex_bw_pr_unidade" aria-label="Body weight unit at PR">
+                <option value="Kg">Kg</option>
+                <option value="Lb">Lb</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="campo_form" id="grupo_campo_pr_data">
+            <label>
+              PR date:
+            </label>
+            <div class="linha_data_pr">
+              <input type="number" id="campo_ex_pr_mes" min="1" max="12" step="1" inputmode="numeric" placeholder="Month" aria-label="PR month" oninput="limpar_erro_campo('campo_ex_pr_mes'); atualizar_limite_dia_pr()">
+              <input type="number" id="campo_ex_pr_dia" min="1" max="31" step="1" inputmode="numeric" placeholder="Day" aria-label="PR day" oninput="limpar_erro_campo('campo_ex_pr_dia')">
+              <input type="number" id="campo_ex_pr_ano" min="1" step="1" inputmode="numeric" placeholder="Year" aria-label="PR year" oninput="limpar_erro_campo('campo_ex_pr_ano'); atualizar_limite_dia_pr()">
+            </div>
+          </div>
+
+          <div class="campo_form" id="grupo_campo_categoria">
+            <div class="linha_label_checkbox">
+              <label>
+                Category:
+                <span class="asterisco_obrigatorio" data-tooltip="Campo de preenchimento obrigatório (seleciona de 1 a 4)" title="Campo de preenchimento obrigatório (seleciona de 1 a 4)">*</span>
+              </label>
+              <span id="contador_cat_selecionadas" class="contador_selecao">0 / 4 selected</span>
+            </div>
+            <div class="caixa_checkboxes" id="container_checkboxes_categoria"></div>
+          </div>
+
+          <div class="campo_form" id="grupo_campo_musculo">
+            <div class="linha_label_checkbox">
+              <label>
+                Target Muscle(s):
+                <span class="asterisco_obrigatorio" data-tooltip="Campo de preenchimento obrigatório (seleciona de 1 a 4)" title="Campo de preenchimento obrigatório (seleciona de 1 a 4)">*</span>
+              </label>
+              <span id="contador_musc_selecionados" class="contador_selecao">0 / 4 selected</span>
+            </div>
+            <div class="caixa_checkboxes" id="container_checkboxes_musculo"></div>
+          </div>
+
+          <div class="campo_form campo_descricao_grupo">
+            <div class="linha_label_desc">
+              <label for="campo_ex_descricao">Description / Notes (max 300 chars):</label>
+              <span id="contador_caracteres_descricao">0 / 300 characters</span>
+            </div>
+            <textarea id="campo_ex_descricao" maxlength="300" placeholder="Description or cues (max 300 characters)..." oninput="atualizar_contador_caracteres()"></textarea>
+          </div>
+
+          <div class="campo_form campo_link_grupo">
+            <label for="campo_ex_link">Video / Reference Link:</label>
+            <input type="url" id="campo_ex_link" maxlength="50" placeholder="e.g. https://www.youtube.com/watch?v=...">
+          </div>
+        </div>
+
+        <div class="botoes_form_exercicio">
+          <button id="btn_guardar_exercicio" class="btn_guardar_ex" onclick="guardar_exercicio_dicionario()">Save Exercise</button>
+          <button id="btn_cancelar_exercicio" class="btn_cancelar_ex" onclick="cancelar_edicao_exercicio()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Barra de Informações da Lista -->
+      <div class="subbarra_lista_info">
+        <span id="contador_exercicios_dic" class="texto_contador_exercicios">0 exercise(s) found</span>
+        <button class="btn_limpar_filtros" onclick="limpar_filtros_dicionario()">Clear Filters</button>
+      </div>
+
+      <!-- Lista Vertical de Exercícios -->
+      <div id="lista_vertical_exercicios" class="lista_vertical_exercicios"></div>
+    </div>
+  </div>
+
+  <!-- JANELA: Aviso e confirmação ao remover categoria / músculo -->
+  <div id="modal_remocao_opcao" class="modal_remocao_fundo">
+    <div class="modal_remocao_caixa" role="dialog" aria-modal="true" aria-labelledby="modal_remocao_titulo">
+      <h3 id="modal_remocao_titulo">⚠️ Warning</h3>
+      <p id="modal_remocao_texto"></p>
+      <div id="modal_remocao_lista" class="modal_remocao_lista"></div>
+      <p id="modal_remocao_aviso_vazio" class="modal_remocao_aviso"></p>
+      <p class="modal_remocao_pergunta">Do you wish to confirm this change?</p>
+      <div class="modal_remocao_botoes">
+        <button type="button" id="modal_remocao_cancelar" class="btn_modal_cancelar">Cancel</button>
+        <button type="button" id="modal_remocao_confirmar" class="btn_modal_confirmar">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tela_filtros_exercicio" class="filtros_exercicio_fundo" aria-hidden="true">
+    <section class="filtros_exercicio_janela" role="dialog" aria-modal="true" aria-labelledby="titulo_filtros_exercicio">
+      <header class="filtros_exercicio_topo">
+        <h2 id="titulo_filtros_exercicio">Filter exercises</h2>
+        <button type="button" aria-label="Close exercise filters" onclick="fechar_modal_filtros_exercicio()">X</button>
+      </header>
+      <div class="filtros_exercicio_corpo">
+        <section class="filtros_exercicio_grupo" aria-labelledby="titulo_filtro_categorias">
+          <h3 id="titulo_filtro_categorias">Categories</h3>
+          <div id="opcoes_filtro_categorias" class="filtros_exercicio_opcoes"></div>
+        </section>
+        <section class="filtros_exercicio_grupo" aria-labelledby="titulo_filtro_musculos">
+          <h3 id="titulo_filtro_musculos">Target muscles</h3>
+          <div id="opcoes_filtro_musculos" class="filtros_exercicio_opcoes"></div>
+        </section>
+      </div>
+      <footer class="filtros_exercicio_acoes">
+        <button type="button" onclick="limpar_filtros_modal_exercicio()">Clear selections</button>
+        <button type="button" class="filtros_exercicio_concluir" onclick="fechar_modal_filtros_exercicio()">Done</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="tela_editar_treino"> 
+    <p id="texto_edit_treino"></p> 
+    <div class="botoes_treino_acoes">
+      <button type="button" id="botao_guardar_treino" onclick="guardar_treino()">Save Workout</button>
+      <button type="button" id="botao_limpar_treino" onclick="abrir_confirmacao_limpar_treino()">Clear All</button>
+    </div>
+    <button type="button" id="botao_modo_treino" aria-pressed="false" onclick="alternar_modo_treino()">Editing mode</button>
+
+    <div class="linha_botoes_exercicio">
+      <button id="botao_adicionar_exercicio" onclick="adicionar_exercicio()">Add exercise</button>
+      <button id="botao_separar" title="Add a named workout section with a time" onclick="adicionar_separador()">Separate</button>
+      <button type="button" id="botao_agrupar_exercicios" onclick="alternar_agrupamento_exercicios()">Agrupar</button>
+    </div>
+    <div id="campo_autoavaliacao_treino" class="campo_autoavaliacao_treino" hidden>
+      <label for="autoavaliacao_treino">Self-Assessment</label>
+      <select id="autoavaliacao_treino" aria-label="Self-Assessment">
+        <option value="" disabled selected>How did you feel today?</option>
+      </select>
+    </div>
+    <button id="botão_fechar_tela_editar_treino" onclick="fechar_tela_editar_treino()">X</button>
+
+     <div id="lista_exercicios"></div>
+
+  </div>
+
+  <div id="modal_limpar_treino" class="modal_limpar_treino_fundo">
+    <div class="modal_limpar_treino_caixa" role="alertdialog" aria-modal="true" aria-labelledby="modal_limpar_treino_titulo">
+      <p id="modal_limpar_treino_titulo">Are you sure you want to clear everything?</p>
+      <div class="modal_limpar_treino_botoes">
+        <button type="button" id="cancelar_limpar_treino" onclick="fechar_confirmacao_limpar_treino(true)">Cancel</button>
+        <button type="button" id="confirmar_limpar_treino" onclick="confirmar_limpar_treino()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tela_bloco_notas" role="dialog" aria-modal="true" aria-labelledby="titulo_bloco_notas">
+    <section class="bloco_notas_janela">
+      <header class="bloco_notas_topo">
+        <h2 id="titulo_bloco_notas">Note Block</h2>
+        <button type="button" id="fechar_bloco_notas" title="Close note block" aria-label="Close note block" onclick="fechar_bloco_notas()">X</button>
+      </header>
+      <div class="bloco_notas_corpo">
+        <aside class="bloco_notas_barra" aria-label="Text formatting">
+          <button type="button" id="bloco_notas_negrito" title="Bold selected text" aria-label="Bold selected text" onclick="formatar_bloco_notas('bold')"><strong>B</strong></button>
+          <select id="bloco_notas_tamanho" title="Choose font size" aria-label="Choose font size">
+            <option value="12">12 px</option>
+            <option value="14">14 px</option>
+            <option value="16" selected>16 px</option>
+            <option value="18">18 px</option>
+            <option value="24">24 px</option>
+            <option value="32">32 px</option>
+            <option value="48">48 px</option>
+          </select>
+          <input type="color" id="bloco_notas_cor" value="#243746" title="Choose text color" aria-label="Choose text color">
+        </aside>
+        <div class="bloco_notas_editor_wrap">
+          <div id="bloco_notas_editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="General workout notes"></div>
+          <div id="bloco_notas_placeholder">Here, you can include anything that complements your workout log, such as: a guide with principles you want to follow; a basic structure for your workouts; your goals; your strengths and weaknesses; ideas for future sessions; exercises you perform daily (so you don't have to write them down every day in the calendar); your nutrition and recovery plan; or any other detail you consider important and want to access easily.</div>
+        </div>
+      </div>
+      <div id="bloco_notas_estado" role="status" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <div id="tela_calculadora" role="dialog" aria-modal="true" aria-labelledby="titulo_calculadora" aria-hidden="true">
+    <section class="calculadora_janela">
+      <header class="calculadora_topo">
+        <h2 id="titulo_calculadora">Calculate some metrics</h2>
+        <button type="button" id="fechar_calculadora" title="Close calculator" aria-label="Close calculator" onclick="fechar_calculadora()">X</button>
+      </header>
+      <div class="calculadora_corpo">
+        <p class="calculadora_descricao">
+          Here you can calculate some metrics that may help you make decisions for future workout sessions.
+          <strong>Keep in mind that this calculator uses certain formulas that are not scientifically proven and are not 100% accurate.</strong>
+        </p>
+
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_1rm">
+          <h3 id="titulo_calcular_1rm">Calculate 1RM based on reps, RIR and weight used</h3>
+          <div class="calculadora_campos">
+            <label>Reps<input type="number" data-calc="reps-1rm" min="0" step="any" inputmode="decimal"></label>
+            <label>RIR<input type="number" data-calc="rir" min="0" step="any" inputmode="decimal"></label>
+            <label>Weight<input type="number" data-calc="weight-1rm" min="0" step="any" inputmode="decimal"></label>
+            <label>Unit<select data-calc="unit-1rm"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
+            <div class="calculadora_campo_musculos">
+              <label>Number of muscles involved<input type="number" data-calc="muscles-1rm" min="1" step="1" inputmode="numeric"></label>
+              <span class="calculadora_info_musculos"><strong>(!)</strong> Do not count your forearms and hands, as these are small muscles and should not be the limiting factor in your heaviest lifts.</span>
+            </div>
+          </div>
+          <p class="calculadora_resultado" data-result="1rm" role="status" aria-live="polite">1RM: Enter values to calculate.</p>
+        </section>
+
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_reps">
+          <h3 id="titulo_calcular_reps">Calculate maximum reps based on the 1RM set for today and the weight used</h3>
+          <div class="calculadora_campos">
+            <label>1RM<input type="number" data-calc="daily-1rm" min="0" step="any" inputmode="decimal"></label>
+            <label>Weight<input type="number" data-calc="weight-reps" min="0" step="any" inputmode="decimal"></label>
+            <label>Unit<select data-calc="unit-reps"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
+            <div class="calculadora_campo_musculos">
+              <label>Number of muscles involved<input type="number" data-calc="muscles-reps" min="1" step="1" inputmode="numeric"></label>
+              <span class="calculadora_info_musculos"><strong>(!)</strong> Do not count your forearms and hands, as these are small muscles and should not be the limiting factor in your heaviest lifts.</span>
+            </div>
+          </div>
+          <p class="calculadora_resultado" data-result="reps" role="status" aria-live="polite">Maximum reps: Enter values to calculate.</p>
+        </section>
+
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_rsi">
+          <h3 id="titulo_calcular_rsi">Calculate RSI</h3>
+          <div class="calculadora_metodo">
+            <h4>Calculate using frames</h4>
+            <div class="calculadora_campos">
+              <label>First contact frame<input type="number" data-calc="rsi-contact" min="0" step="any" inputmode="decimal"></label>
+              <label>Takeoff frame<input type="number" data-calc="rsi-takeoff" min="0" step="any" inputmode="decimal"></label>
+              <label>Landing frame<input type="number" data-calc="rsi-landing" min="0" step="any" inputmode="decimal"></label>
+            </div>
+            <p class="calculadora_resultado" data-result="rsi-frames" role="status" aria-live="polite">RSI: Enter values to calculate.</p>
+          </div>
+          <div class="calculadora_metodo">
+            <h4>Calculate using time</h4>
+            <div class="calculadora_campos">
+              <label>Flight time (seconds)<input type="number" data-calc="rsi-flight" min="0" step="any" inputmode="decimal"></label>
+              <label>Ground contact time (seconds)<input type="number" data-calc="rsi-ground" min="0" step="any" inputmode="decimal"></label>
+            </div>
+            <p class="calculadora_resultado" data-result="rsi-time" role="status" aria-live="polite">RSI: Enter values to calculate.</p>
+          </div>
+        </section>
+
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_salto">
+          <h3 id="titulo_calcular_salto">Jump height</h3>
+          <div class="calculadora_metodo">
+            <h4>Calculate using frames</h4>
+            <div class="calculadora_campos">
+              <label>FPS<input type="number" data-calc="jump-fps" min="0" step="any" inputmode="decimal"></label>
+              <label>Takeoff frame<input type="number" data-calc="jump-takeoff" min="0" step="any" inputmode="decimal"></label>
+              <label>Landing frame<input type="number" data-calc="jump-landing" min="0" step="any" inputmode="decimal"></label>
+              <label>Tiptoe height difference (selected unit)<input type="number" data-calc="jump-tip-frames" min="0" step="any" inputmode="decimal"></label>
+              <label>Height unit<select data-calc="jump-unit-frames"><option value="cm">Centimeters (cm)</option><option value="in">Inches (in)</option></select></label>
+            </div>
+            <p class="calculadora_resultado" data-result="jump-frames" role="status" aria-live="polite">Jump height: Enter values to calculate.</p>
+          </div>
+          <div class="calculadora_metodo">
+            <h4>Calculate using time</h4>
+            <div class="calculadora_campos">
+              <label>Flight time (seconds)<input type="number" data-calc="jump-flight" min="0" step="any" inputmode="decimal"></label>
+              <label>Tiptoe height difference (selected unit)<input type="number" data-calc="jump-tip-time" min="0" step="any" inputmode="decimal"></label>
+              <label>Height unit<select data-calc="jump-unit-time"><option value="cm">Centimeters (cm)</option><option value="in">Inches (in)</option></select></label>
+            </div>
+            <p class="calculadora_resultado" data-result="jump-time" role="status" aria-live="polite">Jump height: Enter values to calculate.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <div id="tela_info_exercicio" role="dialog" aria-modal="true" aria-labelledby="titulo_info_exercicio">
+    <div class="caixa_info_exercicio">
+      <button type="button" id="fechar_info_exercicio" aria-label="Close exercise information" onclick="fechar_info_exercicio()">X</button>
+      <h2 id="titulo_info_exercicio"></h2>
+      <div class="campo_info_exercicio">
+        <strong>Description</strong>
+        <span id="descricao_info_exercicio"></span>
+      </div>
+      <div class="campo_info_exercicio">
+        <strong>Personal Record (PR)</strong>
+        <span id="pr_info_exercicio"></span>
+      </div>
+      <div class="campo_info_exercicio">
+        <strong>BW when you hit PR</strong>
+        <span id="bw_pr_info_exercicio"></span>
+      </div>
+      <div class="campo_info_exercicio">
+        <strong>PR date</strong>
+        <span id="data_pr_info_exercicio"></span>
+      </div>
+      <div class="campo_info_exercicio">
+        <strong>Categories</strong>
+        <span id="categorias_info_exercicio"></span>
+      </div>
+      <div class="campo_info_exercicio">
+        <strong>Target Muscle(s)</strong>
+        <span id="musculos_info_exercicio"></span>
+      </div>
+      <div class="campo_info_exercicio">
+        <strong>Video link</strong>
+        <a id="link_info_exercicio" target="_blank" rel="noopener noreferrer"></a>
+        <span id="sem_link_info_exercicio" hidden>No video link defined.</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="tela_busca_tempo" role="dialog" aria-modal="true" aria-labelledby="titulo_busca_tempo" aria-hidden="true">
+    <section class="busca_tempo_janela">
+      <header class="busca_tempo_topo">
+        <h2 id="titulo_busca_tempo">Search through time</h2>
+        <button type="button" id="fechar_busca_tempo" title="Close Search through time" aria-label="Close Search through time" onclick="fechar_busca_tempo()">X</button>
+      </header>
+      <div class="busca_tempo_data_nav">
+        <strong id="data_treino_busca_tempo"></strong>
+        <button type="button" id="treino_busca_tempo_mais_antigo" aria-label="Older workout" title="Older workout" onclick="mudar_treino_busca_tempo(-1)">&#8592;</button>
+        <button type="button" id="treino_busca_tempo_mais_recente" aria-label="Newer workout" title="Newer workout" onclick="mudar_treino_busca_tempo(1)">&#8594;</button>
+      </div>
+      <div id="lista_treino_busca_tempo" class="busca_tempo_conteudo" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <div id="tela_notas_dia">
+    <p id="texto_titulo_notas_dia">Notes for the day</p>
+    <textarea id="campo_notas_dia" placeholder="Write your notes here..."></textarea>
+    <div class="botoes_notas_dia">
+      <button onclick="guardar_notas_dia()">Save</button>
+      <button onclick="fechar_notas_dia()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="tela_horas">
+    <p id="titulo_tela_horas">Select the time</p>
+
+    <div class="campo_horas">
+      <select id="horas">
+        <option value="" selected disabled>Hours</option>
+      </select>
+      <span class="separador_horas">:</span>
+      <select id="minutos">
+        <option value="" selected disabled>Minutes</option>
+      </select>
+    </div>
+
+    <button id="botao_confirmar_horas" onclick="confirmar_horas()">OK</button>
+    <button id="botao_fechar_tela_horas" onclick="fechar_tela_horas()">X</button>
+  </div>
+
+  <datalist id="lista_sugestoes_exercicios"></datalist>
+
+  <script src="menu_exercicios.js"></script>
+  <script src="menu_treinos.js"></script>
+  <script src="calculator.js"></script>
+</body>
+</html>
