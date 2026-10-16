@@ -679,6 +679,18 @@
         cursor: pointer;
     }
 
+    .ex_ponto_ligacao {
+        display: none;
+        position: absolute;
+        top: 19px;
+        left: -35px;
+        z-index: 2;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #2d6187;
+    }
+
     #lista_exercicios {
         position: relative;
     }
@@ -1132,6 +1144,7 @@
     #tela_editar_treino.modo_leitura #botao_adicionar_exercicio,
     #tela_editar_treino.modo_leitura #botao_separar,
     #tela_editar_treino.modo_leitura #botao_agrupar_exercicios,
+    #tela_editar_treino.modo_leitura #botao_desagrupar_exercicios,
     #tela_editar_treino.modo_leitura .ex_busca,
     #tela_editar_treino.modo_leitura .ex_contador,
     #tela_editar_treino.modo_leitura .ex_alerta,
@@ -1144,9 +1157,12 @@
         display: none !important;
     }
 
-    #tela_editar_treino.modo_leitura .ex_agrupar_selecao,
-    #tela_editar_treino.modo_leitura .ex_ligacoes_svg {
+    #tela_editar_treino.modo_leitura .ex_agrupar_selecao {
         display: none !important;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_ponto_ligacao {
+        display: block;
     }
 
     #tela_editar_treino.modo_leitura .linha_exercicio {
@@ -1322,17 +1338,29 @@
         margin: 20px 0 20px -18px;
     }
 
+    .linha_botoes_exercicio #botao_desagrupar_exercicios {
+        margin: 20px 15px;
+    }
+
     #botao_agrupar_exercicios {
         background-color: #c0392b;
         color: white;
         font-weight: bold;
     }
 
-    #botao_agrupar_exercicios.agrupamento_pronto {
+    #botao_desagrupar_exercicios {
+        background-color: #c0392b;
+        color: white;
+        font-weight: bold;
+    }
+
+    #botao_agrupar_exercicios.agrupamento_pronto,
+    #botao_desagrupar_exercicios.agrupamento_pronto {
         background-color: #27ae60;
     }
 
-    #botao_agrupar_exercicios:hover {
+    #botao_agrupar_exercicios:hover,
+    #botao_desagrupar_exercicios:hover {
         filter: brightness(0.92);
     }
 
