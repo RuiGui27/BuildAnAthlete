@@ -219,8 +219,7 @@ function renumerar_exercicios() {
 
 function alternar_agrupamento_exercicios() {
     if (modo_leitura) return;
-    const selecionados = [...document.querySelectorAll("#lista_exercicios .ex_agrupar_selecao:checked")]
-        .map(campo => campo.closest(".linha_exercicio"));
+    const selecionados = obter_exercicios_selecionados_agrupamento();
     if (selecionados.length < 2) {
         const botao = document.getElementById("botao_agrupar_exercicios");
         if (botao && !botao.classList.contains("agrupamento_pronto")) {
@@ -254,12 +253,41 @@ function alternar_agrupamento_exercicios() {
     atualizar_ligacoes_exercicios();
 }
 
+function obter_exercicios_selecionados_agrupamento() {
+    return [...document.querySelectorAll("#lista_exercicios .ex_agrupar_selecao:checked")]
+        .map(campo => campo.closest(".linha_exercicio"));
+}
+
+function desagrupar_exercicios() {
+    if (modo_leitura) return;
+    const selecionados = obter_exercicios_selecionados_agrupamento();
+    if (selecionados.length < 2) {
+        const botao = document.getElementById("botao_desagrupar_exercicios");
+        if (botao && !botao.classList.contains("agrupamento_pronto")) {
+            alert("You have to select at least 2 items");
+        }
+        return;
+    }
+
+    selecionados.forEach(linha => {
+        linha._linksAgrupamento = [];
+        linha._legado.grupos_ligacao = [];
+        linha.querySelector(".ex_agrupar_selecao").checked = false;
+    });
+    limpar_ligacoes_exercicios_obsoletas();
+    atualizar_botao_agrupamento();
+}
+
 function atualizar_botao_agrupamento() {
     const selecionados = document.querySelectorAll("#lista_exercicios .ex_agrupar_selecao:checked").length;
-    const botao = document.getElementById("botao_agrupar_exercicios");
-    if (!botao) return;
-    botao.classList.toggle("agrupamento_pronto", selecionados >= 2);
-    botao.setAttribute("aria-label", selecionados >= 2 ? "Group selected exercises" : "Select exercises to group");
+    const pronto = selecionados >= 2;
+    const botao_agrupar = document.getElementById("botao_agrupar_exercicios");
+    const botao_desagrupar = document.getElementById("botao_desagrupar_exercicios");
+    [botao_agrupar, botao_desagrupar].forEach(botao => {
+        if (botao) botao.classList.toggle("agrupamento_pronto", pronto);
+    });
+    if (botao_agrupar) botao_agrupar.setAttribute("aria-label", pronto ? "Group selected exercises" : "Select at least two exercises to group");
+    if (botao_desagrupar) botao_desagrupar.setAttribute("aria-label", pronto ? "Ungroup selected exercises" : "Select at least two exercises to ungroup");
     atualizar_ligacoes_exercicios();
 }
 
@@ -274,16 +302,19 @@ function atualizar_ligacoes_exercicios() {
         lista.prepend(svg);
     }
     svg.replaceChildren();
-    svg.setAttribute("width", String(lista.scrollWidth));
+    svg.setAttribute("width", String(lista.clientWidth));
     svg.setAttribute("height", String(lista.scrollHeight));
-    svg.setAttribute("viewBox", `0 0 ${lista.scrollWidth} ${lista.scrollHeight}`);
+    svg.setAttribute("viewBox", `0 0 ${lista.clientWidth} ${lista.scrollHeight}`);
 
     const lista_rect = lista.getBoundingClientRect();
     const grupos = new Map();
     const selecionados = [];
     lista.querySelectorAll(".linha_exercicio").forEach(linha => {
         const checkbox = linha.querySelector(".ex_agrupar_selecao");
-        const rect = checkbox.getBoundingClientRect();
+        const ponto_ligacao = modo_leitura
+            ? linha.querySelector(".ex_ponto_ligacao")
+            : checkbox;
+        const rect = ponto_ligacao.getBoundingClientRect();
         const ponto = {
             x: rect.left - lista_rect.left + lista.scrollLeft + rect.width / 2,
             y: rect.top - lista_rect.top + lista.scrollTop + rect.height / 2
@@ -296,7 +327,7 @@ function atualizar_ligacoes_exercicios() {
         ramo.setAttribute("class", "ex_ligacao_horizontal");
         svg.appendChild(ramo);
 
-        if (checkbox.checked) selecionados.push(ponto);
+        if (!modo_leitura && checkbox.checked) selecionados.push(ponto);
         linha._linksAgrupamento.forEach(id => {
             if (!grupos.has(id)) grupos.set(id, []);
             grupos.get(id).push(ponto);
@@ -565,7 +596,7 @@ function usar_exercicio_desconhecido(linha, nome) {
     mostrar_exercicio_escolhido(linha);
 
     linha.querySelector(".ex_input_busca").value = "";
-    atualizar_sugestoes(linha);
+    linha.querySelector(".ex_sugestoes").style.display = "none";
 }
 
 function escolher_exercicio(linha, ex) {
@@ -578,7 +609,7 @@ function escolher_exercicio(linha, ex) {
 
     // depois de escolher, limpa a pesquisa e a lista volta a esconder-se
     linha.querySelector(".ex_input_busca").value = "";
-    atualizar_sugestoes(linha);
+    linha.querySelector(".ex_sugestoes").style.display = "none";
 }
 
 function mostrar_exercicio_escolhido(linha) {
@@ -1028,6 +1059,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
     linha.innerHTML = `
         <div class="ex_topo">
             <input type="checkbox" class="ex_agrupar_selecao" aria-label="Select exercise to group">
+            <span class="ex_ponto_ligacao" aria-hidden="true"></span>
             <button type="button" class="ex_numero" aria-label="Exercise information" title="Exercise information" onclick="abrir_info_exercicio(${id})" disabled>${id}</button>
             <span class="ex_alerta" title="The sets table is empty">!</span>
             <span class="ex_selecionado"></span>
