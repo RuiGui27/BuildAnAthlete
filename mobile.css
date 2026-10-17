@@ -7,6 +7,8 @@
         --mobile-toolbar-height: 48px;
         --mobile-day-height: 140px;
         --mobile-weekday-height: 42px;
+        --mobile-nav-safe: 44px;        /* espaço reservado para a barra de navegação do Android */
+        --mobile-calc-height: 92.5%;    /* altura da janela da calculadora (100% = ecrã todo; 92.5% = menos 7.5%) */
       }
 
       .menu {
@@ -29,7 +31,7 @@
       }
 
       #botao_calculadora {
-        position: fixed;
+        position: absolute;
         top: 12px;
         left: 330px;
         right: auto;
@@ -611,15 +613,20 @@
         left: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
-        width: 100% !important;
+        /* largura = viewport (left:0 + right:0). NUNCA usar vh aqui: vh é altura e deixa a janela com o dobro da largura do ecrã */
+        width: auto !important;
+        min-width: 0 !important;
         max-width: 100% !important;
         height: 100vh !important;
         height: 100dvh !important;
         max-height: 100dvh !important;
         margin: 0 !important;
         padding: var(--mobile-gutter) !important;
+        /* em cima: respeita a barra de estado; em baixo: não fica tapado pela barra de navegação do Android */
+        padding-top: max(var(--mobile-gutter), env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: max(var(--mobile-gutter), env(safe-area-inset-bottom, 0px), var(--mobile-nav-safe)) !important;
         box-sizing: border-box !important;
-        align-items: stretch;
+        align-items: center;
         justify-content: center;
         overflow: hidden;
         transform: none !important;
@@ -644,6 +651,12 @@
         flex-direction: column;
         overflow: hidden !important;
         border-radius: 10px;
+      }
+
+      /* Calculadora: janela mais baixa (centrada no ecrã). Ajusta --mobile-calc-height no :root */
+      #tela_calculadora .calculadora_janela {
+        height: var(--mobile-calc-height) !important;
+        max-height: var(--mobile-calc-height) !important;
       }
 
       .calculadora_topo,

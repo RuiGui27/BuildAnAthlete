@@ -1619,6 +1619,10 @@ function gerar_calendário() {
         const numero_dia = document.createElement("span");
         numero_dia.classList.add("numero_dia");
         numero_dia.textContent = i;
+        const agora = new Date(); // data real neste momento (a app pode estar aberta há dias)
+        if (i === agora.getDate() && mes === agora.getMonth() + 1 && ano === agora.getFullYear()) {
+            numero_dia.classList.add("dia_hoje");
+        }
         topo_dia.append(botao_notas_dia, numero_dia);
         dia.appendChild(topo_dia);
 
