@@ -161,26 +161,76 @@ function calcular_rsi_tempo() {
     definir_resultado_calculadora("rsi-time", `RSI: ${formatar_resultado_calculadora(flight / ground)}`);
 }
 
-function calcular_dri() {
-    const fallHeight = ler_valor_calculadora("dri-fall-height");
-    const fps = ler_valor_calculadora("dri-fps");
-    const firstContact = ler_valor_calculadora("dri-contact");
-    const takeoff = ler_valor_calculadora("dri-takeoff");
-    const landing = ler_valor_calculadora("dri-landing");
-    if (fallHeight === null || fps === null || fps <= 0 ||
-        firstContact === null || takeoff === null || landing === null ||
-        takeoff <= firstContact || landing <= takeoff) {
-        definir_resultado_calculadora("dri", "DRI: Enter valid values (contact < takeoff < landing) and an FPS greater than zero.");
+function calcular_dri(metodo) {
+    const usandoFrames = metodo === "frames";
+    const resultadoNome = `dri-${metodo}`;
+    const fallHeight = ler_valor_calculadora(`dri-fall-${metodo}`);
+    const fallUnit = document.querySelector(`[data-calc="dri-unit-${metodo}"]`).value;
+    let flightTime;
+    let groundContactTime;
+
+    if (usandoFrames) {
+        const fps = ler_valor_calculadora("dri-fps");
+        const firstContact = ler_valor_calculadora("dri-contact");
+        const takeoff = ler_valor_calculadora("dri-takeoff");
+        const landing = ler_valor_calculadora("dri-landing");
+        if (fps === null || fps <= 0 || firstContact === null || takeoff === null || landing === null ||
+            takeoff <= firstContact || landing <= takeoff) {
+            definir_resultado_calculadora(resultadoNome, "DRI: Enter valid frames (contact < takeoff < landing) and an FPS greater than zero.");
+            return;
+        }
+        groundContactTime = (takeoff - firstContact) / fps;
+        flightTime = (landing - takeoff) / fps;
+    } else {
+        flightTime = ler_valor_calculadora("dri-flight");
+        groundContactTime = ler_valor_calculadora("dri-ground");
+        if (groundContactTime === null) {
+            groundContactTime = ler_valor_calculadora("rsi-ground");
+        }
+        if (flightTime === null || flightTime <= 0 || groundContactTime === null || groundContactTime <= 0) {
+            definir_resultado_calculadora(resultadoNome, "DRI: Enter a valid flight time and ground contact time.");
+            return;
+        }
+    }
+
+    if (fallHeight === null) {
+        definir_resultado_calculadora(resultadoNome, "DRI: Enter a valid fall height.");
         return;
     }
 
-    const fallUnit = document.querySelector('[data-calc="dri-height-unit"]').value;
+    let tiptoe = ler_valor_calculadora(`dri-tip-${metodo}`);
+    let tiptoeUnit = null;
+    const driTipUnitEl = document.querySelector(`[data-calc="dri-tip-unit-${metodo}"]`);
+    if (tiptoe !== null && driTipUnitEl) {
+        tiptoeUnit = driTipUnitEl.value;
+    }
+    if (tiptoe === null) {
+        tiptoe = ler_valor_calculadora(usandoFrames ? "jump-tip-frames" : "jump-tip-time");
+        if (tiptoe !== null) {
+            tiptoeUnit = document.querySelector(`[data-calc="jump-unit-${metodo}"]`).value;
+        }
+    }
+    if (tiptoe === null) {
+        const outroMetodo = usandoFrames ? "time" : "frames";
+        tiptoe = ler_valor_calculadora(`dri-tip-${outroMetodo}`);
+        if (tiptoe !== null) {
+            const el = document.querySelector(`[data-calc="dri-tip-unit-${outroMetodo}"]`);
+            if (el) tiptoeUnit = el.value;
+        }
+        if (tiptoe === null) {
+            tiptoe = ler_valor_calculadora(`jump-tip-${outroMetodo}`);
+            if (tiptoe !== null) {
+                tiptoeUnit = document.querySelector(`[data-calc="jump-unit-${outroMetodo}"]`).value;
+            }
+        }
+    }
+
     const fallHeightMeters = fallUnit === "in" ? fallHeight * METERS_PER_INCH : fallHeight;
-    const groundContactTime = (takeoff - firstContact) / fps;
-    const flightTime = (landing - takeoff) / fps;
-    const ballisticJumpHeight = (flightTime / 2) ** 2 * 4.905;
-    const dri = (fallHeightMeters + ballisticJumpHeight) / (9.80655 * (groundContactTime ** 2));
-    definir_resultado_calculadora("dri", `DRI: ${formatar_resultado_calculadora(dri)}`);
+    const tiptoeMeters = tiptoe !== null
+        ? (tiptoeUnit === "in" ? tiptoe * CENTIMETERS_PER_INCH / 100 : tiptoe / 100)
+        : 0;
+    const dri = (fallHeightMeters + (flightTime / 2) ** 2 * 4.905 + tiptoeMeters) / (9.80655 * (groundContactTime ** 2));
+    definir_resultado_calculadora(resultadoNome, `DRI: ${formatar_resultado_calculadora(dri)}`);
 }
 
 function calcular_altura_salto(metodo) {
@@ -271,11 +321,13 @@ function atualizar_calculadora(event) {
         unidades_tiptoe[metodo] = unidadeNova;
         guardar_valores_tiptoe();
         calcular_altura_salto(metodo);
+        calcular_dri(metodo);
         return;
     }
-    if (nome === "dri-height-unit") {
+    if (nome === "dri-unit-frames" || nome === "dri-unit-time") {
         if (event.type !== "change") return;
-        const campoAltura = document.querySelector('[data-calc="dri-fall-height"]');
+        const metodo = nome === "dri-unit-frames" ? "frames" : "time";
+        const campoAltura = document.querySelector(`[data-calc="dri-fall-${metodo}"]`);
         const unidadeNova = campo.value;
         const unidadeAnterior = campo.dataset.unit || "meters";
         if (campoAltura.value !== "") {
@@ -286,25 +338,55 @@ function atualizar_calculadora(event) {
             campoAltura.value = String(Number(convertida.toFixed(4)));
         }
         campo.dataset.unit = unidadeNova;
-        calcular_dri();
+        calcular_dri(metodo);
         return;
     }
-    if (["jump-tip-frames", "jump-tip-time"].includes(nome)) guardar_valores_tiptoe();
+    if (nome === "dri-tip-unit-frames" || nome === "dri-tip-unit-time") {
+        if (event.type !== "change") return;
+        const metodo = nome === "dri-tip-unit-frames" ? "frames" : "time";
+        const campoTip = document.querySelector(`[data-calc="dri-tip-${metodo}"]`);
+        if (campoTip && campoTip.value !== "") {
+            const valorAnterior = Number(campoTip.value);
+            const unidadeAnterior = campo.dataset.prevUnit || "cm";
+            const fatorConversao = unidadeAnterior === "in"
+                ? CENTIMETERS_PER_INCH
+                : 1 / CENTIMETERS_PER_INCH;
+            campoTip.value = String(Number((valorAnterior * fatorConversao).toFixed(4)));
+        }
+        campo.dataset.prevUnit = campo.value;
+        calcular_dri(metodo);
+        return;
+    }
+
+    if (["jump-tip-frames", "jump-tip-time"].includes(nome)) {
+        guardar_valores_tiptoe();
+    }
+
     if (["reps-1rm", "rir", "weight-1rm", "bw-1rm", "unit-1rm", "muscles-1rm"].includes(nome)) {
         calcular_1rm();
-    } else if (["daily-1rm", "weight-reps", "unit-reps", "muscles-reps"].includes(nome)) {
+    }
+    if (["daily-1rm", "weight-reps", "unit-reps", "muscles-reps"].includes(nome)) {
         calcular_reps();
-    } else if (["target-1rm", "target-reps", "target-rir", "unit-target", "muscles-target"].includes(nome)) {
+    }
+    if (["target-1rm", "target-reps", "target-rir", "unit-target", "muscles-target"].includes(nome)) {
         calcular_peso_alvo();
-    } else if (["rsi-contact", "rsi-takeoff", "rsi-landing"].includes(nome)) {
+    }
+    if (["rsi-contact", "rsi-takeoff", "rsi-landing"].includes(nome)) {
         calcular_rsi_frames();
-    } else if (["rsi-flight", "rsi-ground"].includes(nome)) {
+    }
+    if (["rsi-flight", "rsi-ground"].includes(nome)) {
         calcular_rsi_tempo();
-    } else if (["dri-fall-height", "dri-fps", "dri-contact", "dri-takeoff", "dri-landing"].includes(nome)) {
-        calcular_dri();
-    } else if (["jump-fps", "jump-takeoff", "jump-landing", "jump-tip-frames", "jump-unit-frames"].includes(nome)) {
+    }
+    if (["dri-fall-frames", "dri-fps", "dri-contact", "dri-takeoff", "dri-landing", "dri-tip-frames", "jump-tip-frames", "jump-unit-frames", "jump-tip-time", "jump-unit-time"].includes(nome)) {
+        calcular_dri("frames");
+    }
+    if (["dri-fall-time", "dri-flight", "dri-ground", "rsi-ground", "dri-tip-time", "jump-tip-time", "jump-unit-time", "jump-tip-frames", "jump-unit-frames"].includes(nome)) {
+        calcular_dri("time");
+    }
+    if (["jump-fps", "jump-takeoff", "jump-landing", "jump-tip-frames", "jump-unit-frames"].includes(nome)) {
         calcular_altura_salto("frames");
-    } else if (["jump-flight", "jump-tip-time", "jump-unit-time"].includes(nome)) {
+    }
+    if (["jump-flight", "jump-tip-time", "jump-unit-time"].includes(nome)) {
         calcular_altura_salto("time");
     }
 }

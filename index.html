@@ -302,11 +302,11 @@
             <label>RIR<input type="number" data-calc="rir" min="0" step="any" inputmode="decimal"></label>
             <label>Weight<input type="number" data-calc="weight-1rm" min="0" step="any" inputmode="decimal"></label>
             <label>Unit<select data-calc="unit-1rm"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
-            <label>BW (optional)<input type="number" data-calc="bw-1rm" min="0" step="any" inputmode="decimal"></label>
             <div class="calculadora_campo_musculos">
               <label>Number of muscles groups involved<input type="number" data-calc="muscles-1rm" min="1" step="1" inputmode="numeric"></label>
               <span class="calculadora_info_musculos"><strong>(!)</strong> Do not count your forearms and hands, as these are small muscles and should not be the limiting factor in your heaviest lifts.</span>
             </div>
+            <label>BW (optional)<input type="number" data-calc="bw-1rm" min="0" step="any" inputmode="decimal"></label>
           </div>
           <p class="calculadora_resultado" data-result="1rm" role="status" aria-live="polite">1RM: Enter values to calculate.</p>
         </section>
@@ -363,15 +363,34 @@
 
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_dri">
           <h3 id="titulo_calcular_dri">Calculate DRI</h3>
-          <div class="calculadora_campos">
-            <label>Height of the fall<input type="number" data-calc="dri-fall-height" min="0" step="any" inputmode="decimal"></label>
-            <label>Height unit<select data-calc="dri-height-unit"><option value="meters">Meters (m)</option><option value="in">Inches (in)</option></select></label>
-            <label>FPS<input type="number" data-calc="dri-fps" min="0" step="any" inputmode="decimal"></label>
-            <label>First contact frame<input type="number" data-calc="dri-contact" min="0" step="any" inputmode="decimal"></label>
-            <label>Takeoff frame<input type="number" data-calc="dri-takeoff" min="0" step="any" inputmode="decimal"></label>
-            <label>Landing frame<input type="number" data-calc="dri-landing" min="0" step="any" inputmode="decimal"></label>
+          <div class="calculadora_metodo">
+            <h4>Calculate using frames</h4>
+            <div class="calculadora_campos">
+              <label>Height of the fall<input type="number" data-calc="dri-fall-frames" min="0" step="any" inputmode="decimal"></label>
+              <label>Height unit<select data-calc="dri-unit-frames" data-unit="meters"><option value="meters">Meters (m)</option><option value="in">Inches (in)</option></select></label>
+              <label>FPS<input type="number" data-calc="dri-fps" min="0" step="any" inputmode="decimal"></label>
+              <label>First contact frame<input type="number" data-calc="dri-contact" min="0" step="any" inputmode="decimal"></label>
+              <label>Takeoff frame<input type="number" data-calc="dri-takeoff" min="0" step="any" inputmode="decimal"></label>
+              <label>Landing frame<input type="number" data-calc="dri-landing" min="0" step="any" inputmode="decimal"></label>
+              <label>Tiptoe height difference<input type="number" data-calc="dri-tip-frames" min="0" step="any" inputmode="decimal"></label>
+              <label>Tiptoe unit<select data-calc="dri-tip-unit-frames"><option value="cm">Centimeters (cm)</option><option value="in">Inches (in)</option></select></label>
+            </div>
+            <p class="calculadora_resultado" data-result="dri-frames" role="status" aria-live="polite">DRI: Enter valid values to calculate.</p>
+            <p class="calculadora_nota_info">Tiptoe height difference is optional. It can also sync from Calculate jump height.</p>
           </div>
-          <p class="calculadora_resultado" data-result="dri" role="status" aria-live="polite">DRI: Enter valid values to calculate.</p>
+          <div class="calculadora_metodo">
+            <h4>Calculate using time</h4>
+            <div class="calculadora_campos">
+              <label>Height of the fall<input type="number" data-calc="dri-fall-time" min="0" step="any" inputmode="decimal"></label>
+              <label>Height unit<select data-calc="dri-unit-time" data-unit="meters"><option value="meters">Meters (m)</option><option value="in">Inches (in)</option></select></label>
+              <label>Flight time (seconds)<input type="number" data-calc="dri-flight" min="0" step="any" inputmode="decimal"></label>
+              <label>Ground contact time (seconds)<input type="number" data-calc="dri-ground" min="0" step="any" inputmode="decimal"></label>
+              <label>Tiptoe height difference<input type="number" data-calc="dri-tip-time" min="0" step="any" inputmode="decimal"></label>
+              <label>Tiptoe unit<select data-calc="dri-tip-unit-time"><option value="cm">Centimeters (cm)</option><option value="in">Inches (in)</option></select></label>
+            </div>
+            <p class="calculadora_resultado" data-result="dri-time" role="status" aria-live="polite">DRI: Enter values to calculate.</p>
+            <p class="calculadora_nota_info">Ground contact time can also sync from Calculate RSI. Tiptoe height difference is optional and can also sync from Calculate jump height.</p>
+          </div>
         </section>
 
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_salto">

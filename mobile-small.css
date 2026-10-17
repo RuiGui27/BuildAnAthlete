@@ -42,12 +42,22 @@
     font-size: 15px;
   }
 
+  .calculadora_metodo h4 {
+    font-size: 13px;
+    margin: 0 0 6px;
+  }
+
   .calculadora_campos {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .calculadora_resultado {
     font-size: 13px;
+  }
+
+  .calculadora_nota_info {
+    font-size: 10px;
+    line-height: 1.3;
   }
 
   .busca_tempo_janela {
