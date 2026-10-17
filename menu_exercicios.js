@@ -286,7 +286,32 @@ function abrir_busca_tempo() {
     const tela = document.getElementById("tela_busca_tempo");
     tela.style.display = "flex";
     tela.setAttribute("aria-hidden", "false");
+    desenhar_ligacoes_busca_tempo(); // a tela já está visível, por isso já há medidas para as ligações
     document.getElementById("fechar_busca_tempo").focus();
+}
+
+/* ligações de agrupamento (pontos + linhas), iguais às do modo leitura da tela de edição */
+let observador_ligacoes_busca_tempo = null;
+
+function desenhar_ligacoes_busca_tempo() {
+    const conteudo = document.getElementById("lista_treino_busca_tempo");
+    if (!conteudo || conteudo.clientWidth === 0) return; // tela escondida: não há nada para medir
+    desenhar_ligacoes_exercicios(conteudo, true);
+}
+
+function preparar_ligacoes_busca_tempo(conteudo) {
+    if (typeof ResizeObserver === "function") {
+        if (!observador_ligacoes_busca_tempo) {
+            observador_ligacoes_busca_tempo = new ResizeObserver(() => {
+                requestAnimationFrame(desenhar_ligacoes_busca_tempo);
+            });
+        }
+        // as linhas voltam a ser desenhadas se a janela ou alguma caixa mudar de tamanho
+        observador_ligacoes_busca_tempo.disconnect();
+        observador_ligacoes_busca_tempo.observe(conteudo);
+        conteudo.querySelectorAll(".linha_exercicio").forEach(linha => observador_ligacoes_busca_tempo.observe(linha));
+    }
+    desenhar_ligacoes_busca_tempo();
 }
 
 function encontrar_treinos_busca_tempo() {
@@ -378,6 +403,7 @@ function renderizar_treino_busca_tempo() {
         numero_exercicio++;
         conteudo.appendChild(criar_exercicio_leitura_busca(item, numero_exercicio));
     });
+    preparar_ligacoes_busca_tempo(conteudo);
 }
 
 function criar_exercicio_leitura_busca(dados, numero) {
@@ -385,6 +411,7 @@ function criar_exercicio_leitura_busca(dados, numero) {
     linha.className = "linha_exercicio";
     linha.innerHTML = `
         <div class="ex_topo">
+            <span class="ex_ponto_ligacao" aria-hidden="true"></span>
             <button type="button" class="ex_numero" disabled></button>
             <span class="ex_alerta" title="The sets table has empty fields">!</span>
             <span class="ex_selecionado"></span>
@@ -411,8 +438,23 @@ function criar_exercicio_leitura_busca(dados, numero) {
         </div>
     `;
 
+    // agrupamentos guardados no treino (mesma leitura que a tela de edição faz)
+    const ligacoes = Array.isArray(dados.grupos_ligacao)
+        ? dados.grupos_ligacao
+        : dados.grupo_agrupamento ? [String(dados.grupo_agrupamento)] : [];
+    linha._linksAgrupamento = [...new Set(ligacoes.map(String))];
+
     linha.querySelector(".ex_numero").textContent = String(numero);
-    linha.querySelector(".ex_selecionado").textContent = dados.nome || "";
+    // o nome vai a negrito, como na tela de edição
+    const campo_nome = linha.querySelector(".ex_selecionado");
+    if (dados.nome) {
+        const nome = document.createElement("strong");
+        nome.textContent = dados.nome;
+        campo_nome.appendChild(nome);
+    } else {
+        campo_nome.textContent = "No exercise selected";
+        campo_nome.classList.add("sem_escolha");
+    }
     linha.querySelector(".ex_rm_valor").value = dados.rm_diario || "";
     linha.querySelector(".ex_rm_unidade").textContent = dados.rm_unidade || "";
     linha.querySelector(".ex_textarea").value = dados.detalhes || dados.notas || "";
@@ -441,6 +483,7 @@ function fechar_busca_tempo() {
     });
     treinos_resultado_busca_tempo = [];
     indice_treino_busca_tempo = 0;
+    if (observador_ligacoes_busca_tempo) observador_ligacoes_busca_tempo.disconnect();
     atualizar_contador_busca_tempo();
     document.getElementById("btn_busca_tempo").focus();
 }

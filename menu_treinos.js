@@ -292,7 +292,13 @@ function atualizar_botao_agrupamento() {
 }
 
 function atualizar_ligacoes_exercicios() {
-    const lista = document.getElementById("lista_exercicios");
+    desenhar_ligacoes_exercicios(document.getElementById("lista_exercicios"), modo_leitura);
+}
+
+// Desenha os pontos, as ligações horizontais e as linhas verticais de agrupamento de uma lista de caixas de exercício.
+// Serve a tela de edição (#lista_exercicios) e a tela "Search through time".
+// usar_pontos = true (modo leitura): liga a partir do ponto azul; false (modo edição): liga a partir da checkbox.
+function desenhar_ligacoes_exercicios(lista, usar_pontos) {
     if (!lista) return;
     let svg = lista.querySelector(":scope > .ex_ligacoes_svg");
     if (!svg) {
@@ -302,18 +308,24 @@ function atualizar_ligacoes_exercicios() {
         lista.prepend(svg);
     }
     svg.replaceChildren();
-    svg.setAttribute("width", String(lista.clientWidth));
-    svg.setAttribute("height", String(lista.scrollHeight));
-    svg.setAttribute("viewBox", `0 0 ${lista.clientWidth} ${lista.scrollHeight}`);
+    // encolhe o SVG antes de medir, para que o tamanho antigo não conte para o scrollHeight da lista
+    svg.setAttribute("width", "0");
+    svg.setAttribute("height", "0");
+    const largura_lista = lista.clientWidth;
+    const altura_lista = lista.scrollHeight;
+    svg.setAttribute("width", String(largura_lista));
+    svg.setAttribute("height", String(altura_lista));
+    svg.setAttribute("viewBox", `0 0 ${largura_lista} ${altura_lista}`);
 
     const lista_rect = lista.getBoundingClientRect();
     const grupos = new Map();
     const selecionados = [];
     lista.querySelectorAll(".linha_exercicio").forEach(linha => {
         const checkbox = linha.querySelector(".ex_agrupar_selecao");
-        const ponto_ligacao = modo_leitura
+        const ponto_ligacao = usar_pontos
             ? linha.querySelector(".ex_ponto_ligacao")
             : checkbox;
+        if (!ponto_ligacao) return;
         const rect = ponto_ligacao.getBoundingClientRect();
         const ponto = {
             x: rect.left - lista_rect.left + lista.scrollLeft + rect.width / 2,
@@ -327,8 +339,8 @@ function atualizar_ligacoes_exercicios() {
         ramo.setAttribute("class", "ex_ligacao_horizontal");
         svg.appendChild(ramo);
 
-        if (!modo_leitura && checkbox.checked) selecionados.push(ponto);
-        linha._linksAgrupamento.forEach(id => {
+        if (!usar_pontos && checkbox && checkbox.checked) selecionados.push(ponto);
+        (linha._linksAgrupamento || []).forEach(id => {
             if (!grupos.has(id)) grupos.set(id, []);
             grupos.get(id).push(ponto);
         });
@@ -1778,19 +1790,26 @@ function sanitizar_conteudo_bloco_notas(html) {
     return documento.body.innerHTML;
 }
 
+// caractere invisível usado para o cursor "guardar" o tamanho de letra escolhido antes de se escrever
+const MARCADOR_BLOCO_NOTAS = "\u200B";
+
+function texto_visivel_bloco_notas(editor) {
+    return editor.textContent.split(MARCADOR_BLOCO_NOTAS).join("").trim();
+}
+
 function atualizar_placeholder_bloco_notas() {
     const editor = document.getElementById("bloco_notas_editor");
     const placeholder = document.getElementById("bloco_notas_placeholder");
-    placeholder.hidden = editor.textContent.trim().length > 0;
+    placeholder.hidden = texto_visivel_bloco_notas(editor).length > 0;
 }
 
 function guardar_bloco_notas() {
     const editor = document.getElementById("bloco_notas_editor");
     const estado = document.getElementById("bloco_notas_estado");
-    const conteudo = sanitizar_conteudo_bloco_notas(editor.innerHTML);
+    const conteudo = sanitizar_conteudo_bloco_notas(editor.innerHTML).split(MARCADOR_BLOCO_NOTAS).join("");
 
     try {
-        if (editor.textContent.trim()) {
+        if (texto_visivel_bloco_notas(editor)) {
             localStorage.setItem(CHAVE_BLOCO_NOTAS, conteudo);
         } else {
             localStorage.removeItem(CHAVE_BLOCO_NOTAS);
@@ -1816,8 +1835,10 @@ function abrir_bloco_notas() {
         estado.textContent = "Could not load saved notes from browser storage.";
     }
     atualizar_placeholder_bloco_notas();
+    selecao_bloco_notas = null; // a seleção da sessão anterior já não existe
     document.getElementById("tela_bloco_notas").style.display = "block";
     editor.focus();
+    sincronizar_tamanho_bloco_notas();
 }
 
 function fechar_bloco_notas() {
@@ -1838,41 +1859,91 @@ function guardar_selecao_bloco_notas() {
     }
 }
 
-function formatar_bloco_notas(comando, valor = null) {
+// mostra no seletor o tamanho de letra que existe na posição do cursor
+function sincronizar_tamanho_bloco_notas() {
     const editor = document.getElementById("bloco_notas_editor");
-    editor.focus();
-
+    const seletor = document.getElementById("bloco_notas_tamanho");
     const selecao = window.getSelection();
-    if (selecao && selecao_bloco_notas) {
+    if (!editor || !seletor || !selecao || selecao.rangeCount === 0) return;
+
+    const no = selecao.anchorNode;
+    if (!no || !editor.contains(no)) return;
+    const elemento = no.nodeType === Node.ELEMENT_NODE ? no : no.parentElement;
+    if (!elemento) return;
+
+    const tamanho = Math.round(parseFloat(getComputedStyle(elemento).fontSize));
+    const opcao = [...seletor.options].find(o => Number(o.value) === tamanho);
+    // sem opção igual, o seletor fica em branco: assim qualquer escolha dispara o evento "change"
+    seletor.value = opcao ? opcao.value : "";
+}
+
+function aplicar_tamanho_letra_bloco_notas(editor, selecao, tamanho) {
+    if (!selecao || !Number.isFinite(tamanho) || tamanho < 8 || tamanho > 96) return;
+
+    let range = selecao.rangeCount > 0 ? selecao.getRangeAt(0) : null;
+    if (!range || !editor.contains(range.commonAncestorContainer)) {
+        // sem cursor válido dentro do editor: usa o fim do texto
+        range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false);
         selecao.removeAllRanges();
-        selecao.addRange(selecao_bloco_notas);
+        selecao.addRange(range);
     }
 
-    if (comando === "fontSize") {
-        const range = selecao && selecao.rangeCount > 0 ? selecao.getRangeAt(0) : null;
-        if (!range || !editor.contains(range.commonAncestorContainer)) return;
+    const nova_selecao = document.createRange();
 
-        const estava_recolhida = range.collapsed;
-        const tamanho = Number(valor);
-        if (!Number.isFinite(tamanho) || tamanho < 8 || tamanho > 96) return;
-
+    if (range.collapsed) {
+        // Só há cursor (nada selecionado): o novo tamanho vale para o que se escrever a seguir.
+        // Um <span> vazio não funciona, o navegador tira o cursor lá de dentro; por isso leva um caractere invisível.
+        const no = range.startContainer;
+        const pai = no.nodeType === Node.TEXT_NODE ? no.parentNode : null;
+        if (pai && pai !== editor && pai.tagName === "SPAN" && no.nodeValue === MARCADOR_BLOCO_NOTAS) {
+            pai.style.fontSize = `${tamanho}px`; // o marcador já existe (escolha anterior sem escrever nada)
+            nova_selecao.setStart(no, 1);
+        } else {
+            const span = document.createElement("span");
+            span.style.fontSize = `${tamanho}px`;
+            const marcador = document.createTextNode(MARCADOR_BLOCO_NOTAS);
+            span.appendChild(marcador);
+            range.insertNode(span);
+            nova_selecao.setStart(marcador, 1);
+        }
+        nova_selecao.collapse(true);
+    } else {
         const span = document.createElement("span");
         span.style.fontSize = `${tamanho}px`;
         span.appendChild(range.extractContents());
+        // tamanhos antigos dentro da seleção não podem sobrepor-se ao novo
+        span.querySelectorAll("*").forEach(filho => {
+            if (filho.style && filho.style.fontSize) filho.style.removeProperty("font-size");
+            if (filho.tagName === "SPAN" && !filho.getAttribute("style")) filho.replaceWith(...filho.childNodes);
+        });
         range.insertNode(span);
+        nova_selecao.selectNodeContents(span);
+    }
 
-        const nova_selecao = document.createRange();
-        if (estava_recolhida) {
-            nova_selecao.setStart(span, 0);
-            nova_selecao.collapse(true);
-        } else {
-            nova_selecao.selectNodeContents(span);
-        }
+    selecao.removeAllRanges();
+    selecao.addRange(nova_selecao);
+    selecao_bloco_notas = nova_selecao.cloneRange();
+    atualizar_placeholder_bloco_notas();
+    guardar_bloco_notas();
+    sincronizar_tamanho_bloco_notas();
+}
+
+function formatar_bloco_notas(comando, valor = null) {
+    const editor = document.getElementById("bloco_notas_editor");
+    // lê a seleção guardada ANTES de focar o editor: o evento "focus" grava outra por cima
+    const guardada = selecao_bloco_notas;
+    editor.focus();
+
+    const selecao = window.getSelection();
+    if (selecao && guardada && editor.contains(guardada.commonAncestorContainer)) {
         selecao.removeAllRanges();
-        selecao.addRange(nova_selecao);
-        selecao_bloco_notas = nova_selecao.cloneRange();
-        atualizar_placeholder_bloco_notas();
-        guardar_bloco_notas();
+        selecao.addRange(guardada);
+    }
+
+    if (comando === "fontSize") {
+        aplicar_tamanho_letra_bloco_notas(editor, selecao, Number(valor));
         return;
     }
 
@@ -1917,6 +1988,12 @@ function inicializar_bloco_notas() {
     });
     document.getElementById("bloco_notas_cor").addEventListener("input", event => {
         formatar_bloco_notas("foreColor", event.target.value);
+    });
+    // no telemóvel, as alças de seleção não disparam mouseup/keyup: acompanha a seleção por aqui
+    document.addEventListener("selectionchange", () => {
+        if (document.activeElement !== editor) return;
+        guardar_selecao_bloco_notas();
+        sincronizar_tamanho_bloco_notas();
     });
 
     atualizar_placeholder_bloco_notas();

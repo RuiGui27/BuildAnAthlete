@@ -1,4 +1,4 @@
-    .menu {
+.menu {
       position: absolute;
       top: 35px;   /* distância ao topo */
       left: 37px;  /* distância à esquerda */
@@ -2387,6 +2387,7 @@
     }
 
     .busca_tempo_conteudo {
+      position: relative; /* o SVG com as ligações de agrupamento posiciona-se em relação a esta caixa */
       flex: 1;
       min-height: 0;
       overflow-y: auto;
@@ -2402,7 +2403,11 @@
     }
 
     .busca_tempo_conteudo .linha_exercicio {
-      margin: 12px 8px;
+      margin: 12px 8px 12px 40px; /* espaço à esquerda para o ponto e as ligações, como no modo leitura */
+    }
+
+    .busca_tempo_conteudo .ex_ponto_ligacao {
+      display: block;
     }
 
     .busca_tempo_conteudo .ex_topo {
