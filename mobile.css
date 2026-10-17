@@ -4,7 +4,6 @@
         --mobile-calendar-width: calc(200vw - (2 * var(--mobile-gutter)));
         --mobile-dictionary-top: 68px;
         --mobile-dictionary-height: calc(100dvh - var(--mobile-dictionary-top) - 8px);
-        --mobile-note-height: 96dvh;
         --mobile-toolbar-height: 48px;
         --mobile-day-height: 140px;
         --mobile-weekday-height: 42px;
@@ -32,7 +31,7 @@
       #botao_calculadora {
         position: fixed;
         top: 12px;
-        left: 325px;
+        left: 330px;
         right: auto;
         transform: translateX(-50%);
         min-height: var(--mobile-toolbar-height);
@@ -604,17 +603,96 @@
         min-height: 80px;
       }
 
+      /* ===== Calculadora e Bloco de notas: ecrã inteiro, sempre visível ===== */
+      #tela_calculadora,
       #tela_bloco_notas {
-        padding: var(--mobile-gutter);
-        align-items: center;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        margin: 0 !important;
+        padding: var(--mobile-gutter) !important;
+        box-sizing: border-box !important;
+        align-items: stretch;
         justify-content: center;
+        overflow: hidden;
+        transform: none !important;
       }
 
+      .calculadora_janela,
       .bloco_notas_janela {
-        width: 92%;
-        height: min(var(--mobile-note-height), calc(100dvh - (2 * var(--mobile-gutter))));
-        max-height: var(--mobile-note-height);
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column;
+        overflow: hidden !important;
+        border-radius: 10px;
+      }
+
+      .calculadora_topo,
+      .bloco_notas_topo,
+      #bloco_notas_estado {
+        flex: 0 0 auto;
+      }
+
+      /* A parte de conteúdo ocupa o espaço restante e faz scroll por dentro */
+      .calculadora_corpo {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         box-sizing: border-box;
+      }
+
+      .bloco_notas_corpo {
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+      .bloco_notas_editor_wrap {
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 0;
+        box-sizing: border-box;
+      }
+
+      #bloco_notas_editor {
+        max-width: 100%;
+        height: 100%;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        font-size: 16px;
+      }
+
+      .bloco_notas_barra {
+        flex: 0 0 auto;
+        min-width: 0;
       }
 
       #tela_horas {
