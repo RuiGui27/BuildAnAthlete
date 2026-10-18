@@ -14,6 +14,19 @@ const modos_treino_por_dia = JSON.parse(localStorage.getItem(CHAVE_MODOS_TREINO_
 // ]
 // Agora só existe 1 treino por dia (o array tem no máximo 1 elemento, o que mantém compatível o que já está no localStorage)
 
+// unidades antigas do "stipulated daily RM" ("m", "mi") passam a "meters" e "miles" (fica guardado na próxima vez que o treino for gravado)
+Object.values(treinos).forEach(lista_treinos => {
+    if (!Array.isArray(lista_treinos)) return;
+    lista_treinos.forEach(treino => {
+        if (!treino || !Array.isArray(treino.exercicios)) return;
+        treino.exercicios.forEach(ex => {
+            if (ex && ex.rm_unidade && typeof normalizar_unidade_medida === "function") {
+                ex.rm_unidade = normalizar_unidade_medida(ex.rm_unidade);
+            }
+        });
+    });
+});
+
 const notas_dia = JSON.parse(localStorage.getItem("notas_dia")) || {};
 // notas_dia[chave_dia] = { notas: "..." }
 let dia_notas_atual, mes_notas_atual, ano_notas_atual; // dia cujas notas estão a ser editadas
@@ -660,13 +673,13 @@ function so_numeros(input) {
 
 // as mesmas unidades do "Dictionary of exercises" (UNIDADES_PR, em menu_exercicios.js)
 function unidades_de_medida() {
-    return (typeof UNIDADES_PR !== "undefined") ? UNIDADES_PR : ["Kg", "m/s", "m", "Km", "mi", "cm", "W", "seconds", "hours"];
+    return (typeof UNIDADES_PR !== "undefined") ? UNIDADES_PR : ["Kg", "Lb", "m/s", "yards", "meters", "Km", "miles", "cm", "in", "W", "seconds", "minutes", "hours", "%", "reps"];
 }
 
 /* ---------- tabela de séries: secções (reps | intensidade) x grupos de séries ---------- */
 
-const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "meters", "cm", "in"];
-const TIPOS_SERIE = ["reps", "meters", "Km", "mi", "seconds", "hours"];
+const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)"];
+const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours"];
 const MAX_SECOES_TABELA = 5;
 const MAX_SERIES_TABELA = 8;
 
@@ -842,13 +855,6 @@ function construir_tabela(linha, t) {
             td_reps.classList.add("ex_cel_valor_serie");
             const input_reps = criar_input_tabela("ex_cel_reps", celula.reps);
             td_reps.appendChild(input_reps);
-            const sufixo = document.createElement("span");
-            sufixo.classList.add("ex_sufixo_serie");
-            sufixo.hidden = !input_reps.value.trim();
-            input_reps.addEventListener("input", () => {
-                sufixo.hidden = !input_reps.value.trim();
-            });
-            td_reps.appendChild(sufixo);
             tr.insertCell().appendChild(criar_input_tabela("ex_cel_int", celula.intensidade));
         });
     });
@@ -856,19 +862,6 @@ function construir_tabela(linha, t) {
     conteudo_tabela.appendChild(tabela);
     if (botoes_colunas) conteudo_tabela.appendChild(botoes_colunas);
     contentor.appendChild(conteudo_tabela);
-    contentor.querySelectorAll(".ex_tipo_serie").forEach(select => {
-        select.addEventListener("change", () => {
-            const indice = [...contentor.querySelectorAll(".ex_tipo_serie")].indexOf(select);
-            const sufixo = sufixo_tipo_serie(select.value);
-            contentor.querySelectorAll("tbody tr").forEach(tr => {
-                const celula = tr.querySelectorAll(".ex_cel_valor_serie")[indice];
-                const valor = celula.querySelector(".ex_cel_reps");
-                const rotulo = celula.querySelector(".ex_sufixo_serie");
-                rotulo.textContent = sufixo;
-                rotulo.hidden = !valor.value.trim();
-            });
-        });
-    });
 
     // não deixa ficar sem nenhuma série ou secção
     const botao_mais_secao = linha.querySelector(".ex_col_mais");
@@ -1116,7 +1109,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
         <div class="ex_acoes">
             <button class="ex_botao_mover" title="Move up" onclick="mover_exercicio(${id}, 'cima')">&#9650;</button>
             <button class="ex_botao_mover" title="Move down" onclick="mover_exercicio(${id}, 'baixo')">&#9660;</button>
-            <button class="ex_botao_remover" onclick="remover_exercicio(${id})">Remove</button>
+            <button class="ex_botao_remover" onclick="pedir_confirmacao_remover_exercicio(${id})">Remove</button>
         </div>
     `;
 
@@ -1225,6 +1218,73 @@ function remover_exercicio(id) {
     limpar_ligacoes_exercicios_obsoletas();
     atualizar_botao_agrupamento();
     renumerar_exercicios();
+}
+
+/* confirmação antes de remover um exercício (mesmo aspeto da confirmação de limpar o treino) */
+let exercicio_a_remover = null;
+
+function obter_modal_remover_exercicio() {
+    let modal = document.getElementById("modal_remover_exercicio");
+    if (modal) return modal;
+
+    // cores dos botões: Cancel cinzento, Confirm vermelho (a caixa usa as classes do modal "Clear workout")
+    const estilo = document.createElement("style");
+    estilo.textContent = `
+        #cancelar_remover_exercicio { background-color: #95a5a6; }
+        #cancelar_remover_exercicio:hover { background-color: #7f8c8d; }
+        #confirmar_remover_exercicio { background-color: #c0392b; }
+        #confirmar_remover_exercicio:hover { background-color: #a93226; }
+    `;
+    document.head.appendChild(estilo);
+
+    modal = document.createElement("div");
+    modal.id = "modal_remover_exercicio";
+    modal.className = "modal_limpar_treino_fundo";
+    modal.innerHTML = `
+        <div class="modal_limpar_treino_caixa" role="alertdialog" aria-modal="true" aria-labelledby="modal_remover_exercicio_titulo">
+            <p id="modal_remover_exercicio_titulo">Are you sure you want to remove this?</p>
+            <div class="modal_limpar_treino_botoes">
+                <button type="button" id="cancelar_remover_exercicio">Cancel</button>
+                <button type="button" id="confirmar_remover_exercicio">Confirm</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById("cancelar_remover_exercicio").addEventListener("click", () => fechar_confirmacao_remover_exercicio(true));
+    document.getElementById("confirmar_remover_exercicio").addEventListener("click", confirmar_remover_exercicio);
+    modal.addEventListener("click", event => {
+        if (event.target === modal) fechar_confirmacao_remover_exercicio(true);
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && modal.style.display === "flex") {
+            fechar_confirmacao_remover_exercicio(true);
+        }
+    });
+    return modal;
+}
+
+function pedir_confirmacao_remover_exercicio(id) {
+    exercicio_a_remover = id;
+    obter_modal_remover_exercicio().style.display = "flex";
+    document.getElementById("cancelar_remover_exercicio").focus(); // o botão seguro fica em foco
+}
+
+function fechar_confirmacao_remover_exercicio(restaurar_foco = false) {
+    const modal = document.getElementById("modal_remover_exercicio");
+    if (modal) modal.style.display = "none";
+    const id = exercicio_a_remover;
+    exercicio_a_remover = null;
+    if (restaurar_foco && id !== null) {
+        const botao = document.querySelector(`#exercicio_${id} .ex_botao_remover`);
+        if (botao) botao.focus();
+    }
+}
+
+function confirmar_remover_exercicio() {
+    const id = exercicio_a_remover;
+    fechar_confirmacao_remover_exercicio();
+    if (id !== null) remover_exercicio(id);
 }
 
 function abrir_notas_dia(dia, mes, ano) {

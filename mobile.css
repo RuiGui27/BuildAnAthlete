@@ -1,6 +1,6 @@
 @media (max-width: 500px) {
       :root {
-        --mobile-gutter: 10px;
+        --mobile-gutter: 9px;
         --mobile-calendar-width: calc(200vw - (2 * var(--mobile-gutter)));
         --mobile-dictionary-top: 68px;
         --mobile-dictionary-height: calc(100dvh - var(--mobile-dictionary-top) - 8px);
@@ -42,7 +42,7 @@
       }
 
       #calendario {
-        left: 1px;
+        left: 2px;
         width: var(--mobile-calendar-width);
         box-sizing: border-box;
       }
@@ -706,6 +706,23 @@
       .bloco_notas_barra {
         flex: 0 0 auto;
         min-width: 0;
+      }
+
+      /* Notes for the day: fixa ao ecrã (e não à página, que é mais larga que o ecrã), encostada à esquerda
+         e com largura e altura que cabem sempre inteiras no ecrã, esteja o calendário onde estiver */
+      #tela_notas_dia {
+        position: fixed;
+        top: var(--mobile-dictionary-top);
+        left: var(--mobile-gutter);
+        right: var(--mobile-gutter);
+        width: auto;
+        height: min(400px, calc(100dvh - var(--mobile-dictionary-top) - var(--mobile-gutter)));
+        transform: none;
+      }
+
+      #campo_notas_dia {
+        flex: 0 1 220px; /* mantém os 220px, mas encolhe se o ecrã for muito baixo */
+        min-height: 80px;
       }
 
       #tela_horas {

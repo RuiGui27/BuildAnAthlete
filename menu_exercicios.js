@@ -60,14 +60,28 @@ const UNIDADES_PR = [
     "Kg",
     "Lb",
     "m/s",
-    "m",
+    "yards",
+    "meters",
     "Km",
-    "mi",
+    "miles",
     "cm",
+    "in",
     "W",
     "seconds",
-    "hours"
+    "minutes",
+    "hours",
+    "%",
+    "reps"
 ];
+
+// nomes antigos guardados no navegador -> nomes atuais (assim os dados já guardados continuam a aparecer selecionados)
+const UNIDADES_MEDIDA_ANTIGAS = { m: "meters", mi: "miles" };
+
+function normalizar_unidade_medida(unidade) {
+    return Object.prototype.hasOwnProperty.call(UNIDADES_MEDIDA_ANTIGAS, unidade)
+        ? UNIDADES_MEDIDA_ANTIGAS[unidade]
+        : unidade;
+}
 
 // Exercícios padrão para demonstração inicial se a base de dados do browser estiver vazia
 const EXERCICIOS_PADRAO = [
@@ -200,6 +214,7 @@ window.dicionario_exercicios = lista_exercicios_global;
 
 function normalizar_exercicio(ex) {
     if (!ex) return ex;
+    if (ex.pr_unidade) ex.pr_unidade = normalizar_unidade_medida(ex.pr_unidade);
     // Garante que categorias é um array
     if (!Array.isArray(ex.categorias)) {
         ex.categorias = ex.categoria
