@@ -154,6 +154,24 @@
         padding-right: 0;
       }
 
+      /* botão de copiar (canto superior direito) e botão Paste */
+      .ex_botao_copiar {
+        top: 9px;
+        right: 10px;
+      }
+
+      #tela_editar_treino .ex_topo,
+      #tela_editar_treino.modo_leitura .ex_topo {
+        padding-right: 36px; /* espaço para o botão de copiar */
+      }
+
+      .botoes_treino_acoes {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-left: 16px;
+        margin-right: 16px;
+      }
+
       .ex_selecionado {
         flex: 1;
       }
@@ -286,6 +304,42 @@
         box-sizing: border-box;
       }
 
+      /* Edit Workout: valor do RM e unidade lado a lado (modo de edição e de leitura); o rótulo fica numa linha própria */
+      #tela_editar_treino .ex_rm {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: center;
+        column-gap: 4px;
+      }
+
+      #tela_editar_treino .ex_rm label {
+        grid-column: 1 / -1;
+      }
+
+      /* modo de leitura: valor e unidade bem juntos (cada um ocupa só o que o texto precisa) */
+      #tela_editar_treino.modo_leitura .ex_rm {
+        grid-template-columns: max-content max-content;
+        justify-content: start;
+        column-gap: 2px;
+      }
+
+      #tela_editar_treino.modo_leitura .ex_rm_valor {
+        width: 6ch; /* alternativa para navegadores sem field-sizing */
+        padding-right: 0;
+      }
+
+      #tela_editar_treino.modo_leitura .ex_rm_unidade {
+        padding-left: 0;
+        margin-left: -6px;
+      }
+
+      @supports (field-sizing: content) {
+        #tela_editar_treino.modo_leitura .ex_rm_valor {
+          field-sizing: content;
+          width: auto;
+          min-width: 1ch;
+        }
+      }
+
       .ex_area_tabela {
         grid-template-columns: minmax(0, 1fr);
         margin-top: 0;
@@ -310,15 +364,22 @@
         align-self: flex-end;
       }
 
+      /* o campo fica em frente ao texto "Self-Assessment" (na mesma linha), nos dois modos */
       .campo_autoavaliacao_treino {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 6px;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
         margin: 12px 12px 20px;
       }
 
+      .campo_autoavaliacao_treino label {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+
       #autoavaliacao_treino {
-        width: 100%;
+        flex: 1;
+        width: auto;
         min-width: 0;
         box-sizing: border-box;
       }

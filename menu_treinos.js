@@ -1082,7 +1082,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
             </div>
 
             <div class="ex_rm">
-                <label>Stipulated daily RM</label>
+                <label>Stipulated daily RM:</label>
                 <input type="text" inputmode="decimal" class="ex_rm_valor" placeholder="number">
                 <select class="ex_rm_unidade" title="Unit of measure"></select>
             </div>
@@ -1111,6 +1111,10 @@ function adicionar_exercicio(rolar = true, dados = null) {
             <button class="ex_botao_mover" title="Move down" onclick="mover_exercicio(${id}, 'baixo')">&#9660;</button>
             <button class="ex_botao_remover" onclick="pedir_confirmacao_remover_exercicio(${id})">Remove</button>
         </div>
+
+        <button type="button" class="ex_botao_copiar" title="Copy this exercise" aria-label="Copy this exercise">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
     `;
 
     // dados de um treino já guardado (ou vazio, se for exercício novo)
@@ -1177,6 +1181,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
     atualizar_rotulo_filtros_treino(linha);
 
     linha.querySelector(".ex_botao_dicionario").onclick = () => guardar_no_dicionario(linha);
+    linha.querySelector(".ex_botao_copiar").onclick = () => copiar_exercicio(linha);
 
     mostrar_exercicio_escolhido(linha);
     atualizar_sugestoes(linha);
@@ -1287,6 +1292,57 @@ function confirmar_remover_exercicio() {
     if (id !== null) remover_exercicio(id);
 }
 
+/* copiar / colar exercícios (ex.: o mesmo exercício em dois treinos diferentes) */
+const CHAVE_EXERCICIO_COPIADO = "exercicio_copiado";
+let exercicio_copiado = null; // "área de transferência": dados completos do último exercício copiado
+
+try {
+    exercicio_copiado = JSON.parse(localStorage.getItem(CHAVE_EXERCICIO_COPIADO)) || null;
+} catch (erro) {
+    exercicio_copiado = null;
+}
+
+// lê tudo o que o utilizador já definiu na caixa do exercício (mesmo formato com que o treino é guardado)
+function ler_dados_exercicio(linha) {
+    const escolhido = linha._exercicio || { nome: "", categoria: "", musculo: "" };
+    const { sets, reps, intensity, intensity_tipo, grupo_agrupamento, grupos_ligacao, ...legado } = linha._legado;
+    return JSON.parse(JSON.stringify({
+        ...legado,
+        grupos_ligacao: [], // o exercício colado não herda os agrupamentos do original
+        nome: escolhido.nome,
+        categoria: escolhido.categoria,
+        musculo: escolhido.musculo,
+        detalhes: linha.querySelector(".ex_textarea").value,
+        rm_diario: linha.querySelector(".ex_rm_valor").value,
+        rm_unidade: linha.querySelector(".ex_rm_unidade").value,
+        tabela: ler_tabela(linha)
+    }));
+}
+
+function copiar_exercicio(linha) {
+    const dados = ler_dados_exercicio(linha);
+    exercicio_copiado = dados;
+    try {
+        localStorage.setItem(CHAVE_EXERCICIO_COPIADO, JSON.stringify(dados));
+    } catch (erro) {
+        console.error("Unable to keep the copied exercise in browser storage:", erro);
+    }
+    mostrar_notificacao(dados.nome ? `Exercise copied: ${dados.nome}` : "Exercise copied");
+}
+
+// "Paste": acrescenta no fim do treino uma caixa de exercício já preenchida com o exercício copiado
+function colar_exercicio() {
+    if (modo_leitura) return;
+    if (!exercicio_copiado) {
+        mostrar_notificacao("Nothing to paste yet. Copy an exercise first.");
+        return;
+    }
+    adicionar_exercicio(false, JSON.parse(JSON.stringify(exercicio_copiado)));
+    const nova = document.getElementById(`exercicio_${contador_exercicios}`);
+    if (nova) nova.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    mostrar_notificacao("Exercise pasted");
+}
+
 function abrir_notas_dia(dia, mes, ano) {
     dia_notas_atual = dia;
     mes_notas_atual = mes;
@@ -1376,9 +1432,11 @@ function guardar_treino() {
     if (!treinos[chave]) treinos[chave] = [];
     const nome = [...new Set(separadores.map(separador => separador.querySelector(".input_nome_sep").value.trim()))].join(" / ");
 
+    let id_guardado = treino_em_edicao;
     if (treino_em_edicao === null) {
+        id_guardado = proximo_id_treino++;
         treinos[chave].push({
-            id: proximo_id_treino++,
+            id: id_guardado,
             nome,
             exercicios,
             autoavaliacao: document.getElementById("autoavaliacao_treino").value || null
@@ -1391,8 +1449,33 @@ function guardar_treino() {
     }
 
     localStorage.setItem("treinos", JSON.stringify(treinos));
-    treino_em_edicao = null; // reset defensivo, evita estado preso entre sessões
-    fechar_tela_editar_treino();
+
+    // continua na tela de edição, mas em modo leitura. O treino já existe, por isso um novo "Save"
+    // atualiza-o em vez de o duplicar, e o título deixa de dizer "New Workout"
+    treino_em_edicao = id_guardado;
+    document.getElementById("texto_edit_treino").textContent =
+        `Edit Workout - ${dia_atual}/${mes_atual}/${ano_atual}`;
+    definir_modo_leitura(true);
+    requestAnimationFrame(atualizar_ligacoes_exercicios);
+    mostrar_notificacao("Workout saved");
+}
+
+/* notificação pop-up que desaparece sozinha */
+let temporizador_notificacao = null;
+
+function mostrar_notificacao(mensagem, duracao_ms = 2500) {
+    let notificacao = document.getElementById("notificacao_popup");
+    if (!notificacao) {
+        notificacao = document.createElement("div");
+        notificacao.id = "notificacao_popup";
+        notificacao.setAttribute("role", "status");
+        notificacao.setAttribute("aria-live", "polite");
+        document.body.appendChild(notificacao);
+    }
+    notificacao.textContent = mensagem;
+    notificacao.classList.add("visivel");
+    clearTimeout(temporizador_notificacao);
+    temporizador_notificacao = setTimeout(() => notificacao.classList.remove("visivel"), duracao_ms);
 }
 
 function disponivel_autoavaliacao(dia, mes, ano, agora = new Date()) {
@@ -1586,16 +1669,21 @@ function criar_preview_treino(treino) {
 
         if (ex.separador) {
             linha.classList.add('preview_separador');
+            // entre os dois traços: o nome da secção em cima e a hora por baixo
+            const texto = document.createElement('span');
+            texto.classList.add('preview_separador_texto');
             if (ex.nome) {
                 const nome = document.createElement('span');
                 nome.classList.add("preview_nome_secao");
                 nome.textContent = ex.nome;
-                linha.appendChild(nome);
+                texto.appendChild(nome);
             }
             const hora = document.createElement('span');
+            hora.classList.add('preview_hora_secao');
             hora.textContent = `${ex.horas || HORA_PADRAO}:${ex.minutos || MINUTOS_PADRAO}`;
+            texto.appendChild(hora);
             linha.insertAdjacentHTML('afterbegin', '<span class="traco_preview"></span>');
-            linha.appendChild(hora);
+            linha.appendChild(texto);
             linha.insertAdjacentHTML('beforeend', '<span class="traco_preview"></span>');
         } else {
             linha.classList.add('preview_exercicio');

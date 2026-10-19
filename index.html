@@ -222,6 +222,7 @@
     <div class="botoes_treino_acoes">
       <button type="button" id="botao_guardar_treino" onclick="guardar_treino()">Save Workout</button>
       <button type="button" id="botao_limpar_treino" onclick="abrir_confirmacao_limpar_treino()">Clear All</button>
+      <button type="button" id="botao_colar_exercicio" title="Paste the copied exercise at the end of this workout" onclick="colar_exercicio()">Paste</button>
     </div>
     <button type="button" id="botao_modo_treino" aria-pressed="false" onclick="alternar_modo_treino()">Editing mode</button>
 
@@ -232,7 +233,7 @@
       <button type="button" id="botao_desagrupar_exercicios" onclick="desagrupar_exercicios()">Ungroup</button>
     </div>
     <div id="campo_autoavaliacao_treino" class="campo_autoavaliacao_treino" hidden>
-      <label for="autoavaliacao_treino">Self-Assessment</label>
+      <label for="autoavaliacao_treino">Self-Assessment:</label>
       <select id="autoavaliacao_treino" aria-label="Self-Assessment">
         <option value="" disabled selected>How did you feel today?</option>
       </select>

@@ -605,7 +605,7 @@
 
     #botao_modo_treino {
       display: block;
-      margin: 20px 30px 0 30px;
+      margin: 20px 30px 0 15px;
       padding: 8px 16px;
       background-color: #2d6187;
       color: white;
@@ -1161,6 +1161,23 @@
         flex-shrink: 0;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    /* na célula do dia: nome da secção em cima e hora por baixo, entre os dois traços */
+    .preview_separador_texto {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 0;
+        line-height: 1.25;
+        text-align: center;
+    }
+
+    .preview_separador_texto .preview_nome_secao {
+        flex-shrink: 1;
+        min-width: 0;
+        max-width: 100%;
+        white-space: nowrap;
     }
 
     #tela_editar_treino.modo_leitura #botao_guardar_treino,
@@ -2824,4 +2841,94 @@
       margin: 0 0 6px;
       font-size: 16px;
       font-weight: bold;
+    }
+
+    /* notificação pop-up (ex.: "Workout saved") */
+    #notificacao_popup {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 12px);
+      max-width: calc(100vw - 24px);
+      padding: 12px 22px;
+      border-radius: 10px;
+      background-color: #2d6187;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      font-weight: bold;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 9500;
+    }
+
+    #notificacao_popup.visivel {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* ===== Copiar / colar exercícios ===== */
+
+    /* botão "Paste", ao lado de "Clear All" (mesmo aspeto) */
+    #botao_colar_exercicio {
+        display: block;
+        margin: 0;
+        padding: 8px 16px;
+        cursor: pointer;
+        background-color: #2d6187;
+        color: white;
+        font-weight: bold;
+    }
+
+    #botao_colar_exercicio:hover {
+        background-color: #24506f;
+    }
+
+    /* só se pode colar em modo de edição (tal como Save / Clear All) */
+    #tela_editar_treino.modo_leitura #botao_colar_exercicio {
+        display: none !important;
+    }
+
+    /* botão de copiar, no canto superior direito da caixa do exercício */
+    .ex_botao_copiar {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 8px;
+        background-color: #2d6187;
+        color: white;
+        cursor: pointer;
+    }
+
+    .ex_botao_copiar:hover {
+        background-color: #24506f;
+    }
+
+    .ex_botao_copiar svg {
+        display: block;
+        width: 16px;
+        height: 16px;
+        pointer-events: none;
+    }
+
+    /* dá espaço ao botão de copiar: as ações (setas / Remove) passam para a esquerda dele */
+    #tela_editar_treino .ex_acoes {
+        right: 48px;
+    }
+
+    #tela_editar_treino .ex_topo {
+        padding-right: 226px;
+    }
+
+    #tela_editar_treino.modo_leitura .ex_topo {
+        padding-right: 38px;
     }
