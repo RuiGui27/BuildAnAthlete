@@ -640,7 +640,7 @@
     }
 
     #botao_mes_seguinte {
-      left: 1260px;
+      left: 1307px;
       filter: brightness(0.88);
     }
 
@@ -1463,9 +1463,6 @@
     .botoes_notas_dia {
       display: flex;
       justify-content: space-around;
-    }
-
-    .botoes_notas_dia {
       padding: 8px 16px;
       cursor: pointer;
     }
@@ -1473,7 +1470,6 @@
     #tela_horas {
       width: 300px;
       height: 200px;
-      background-color: rgb(146, 192, 211);
       position: fixed;
       top: 50%;
       left: 50%;

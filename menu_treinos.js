@@ -1632,22 +1632,7 @@ function fechar_tela_horas() {
 }
 
 function calcular_num_dia_no_mes(mes){
-    let num_dias_no_mes;
-    switch(mes){
-        case 1: num_dias_no_mes = 31; break;
-        case 2: num_dias_no_mes = ano % 4 === 0 ? 29 : 28; break;
-        case 3: num_dias_no_mes = 31; break;
-        case 4: num_dias_no_mes = 30; break;
-        case 5: num_dias_no_mes = 31; break;
-        case 6: num_dias_no_mes = 30; break;
-        case 7: num_dias_no_mes = 31; break;
-        case 8: num_dias_no_mes = 31; break;
-        case 9: num_dias_no_mes = 30; break; 
-        case 10: num_dias_no_mes = 31; break;
-        case 11: num_dias_no_mes = 30; break;
-        case 12: num_dias_no_mes = 31; break;
-    }
-    return num_dias_no_mes;
+    return [31, ano % 4 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mes - 1];
 }
 
 /* resumo do treino dentro da célula do dia (com scroll vertical quando não cabe tudo) */
@@ -1726,8 +1711,8 @@ function criar_preview_treino(treino) {
 
 function gerar_calendário() {
     const mes_anterior = mes === 1 ? 12 : mes - 1;
-    let num_dias_no_mes = calcular_num_dia_no_mes(mes);
-    let num_dias_no_mes_anterior = calcular_num_dia_no_mes(mes_anterior);
+    const num_dias_no_mes = calcular_num_dia_no_mes(mes);
+    const num_dias_no_mes_anterior = calcular_num_dia_no_mes(mes_anterior);
 
     const calendario = document.getElementById('calendario');
 
@@ -1883,6 +1868,61 @@ function mostrar_acessorios_de_calendario() {
     document.getElementById("botao_mes_anterior").style.display = "block";
     document.getElementById("botao_mes_seguinte").style.display = "block";
     document.getElementById("titulo_calendario").style.display = "block";
+}
+
+function inicializar_zoom_calendario_mobile() {
+    const calendario = document.getElementById("calendario");
+    const mediaMobile = window.matchMedia("(max-width: 500px)");
+    const escalaMinima = 0.65;
+    const escalaMaxima = 1.7;
+    let escala = 1;
+    let distanciaInicial = 0;
+    let escalaInicial = 1;
+    let pinçaAtiva = false;
+
+    const distanciaEntreToques = (primeiroToque, segundoToque) =>
+        Math.hypot(
+            segundoToque.clientX - primeiroToque.clientX,
+            segundoToque.clientY - primeiroToque.clientY
+        );
+
+    const terminarPinça = () => {
+        pinçaAtiva = false;
+        distanciaInicial = 0;
+    };
+
+    calendario.addEventListener("touchstart", evento => {
+        if (!mediaMobile.matches || evento.touches.length !== 2) return;
+
+        distanciaInicial = distanciaEntreToques(evento.touches[0], evento.touches[1]);
+        escalaInicial = escala;
+        pinçaAtiva = distanciaInicial > 0;
+    }, { passive: true });
+
+    calendario.addEventListener("touchmove", evento => {
+        if (!mediaMobile.matches || !pinçaAtiva || evento.touches.length !== 2) return;
+
+        evento.preventDefault();
+        const distanciaAtual = distanciaEntreToques(evento.touches[0], evento.touches[1]);
+        escala = Math.min(
+            escalaMaxima,
+            Math.max(escalaMinima, escalaInicial * (distanciaAtual / distanciaInicial))
+        );
+        calendario.style.setProperty("--mobile-calendar-pinch-scale", escala);
+    }, { passive: false });
+
+    calendario.addEventListener("touchend", evento => {
+        if (evento.touches.length < 2) terminarPinça();
+    }, { passive: true });
+    calendario.addEventListener("touchcancel", terminarPinça, { passive: true });
+
+    mediaMobile.addEventListener("change", evento => {
+        if (!evento.matches) {
+            terminarPinça();
+            escala = 1;
+            calendario.style.removeProperty("--mobile-calendar-pinch-scale");
+        }
+    });
 }
 
 const CHAVE_BLOCO_NOTAS = "bloco_notas_geral";
@@ -2153,6 +2193,7 @@ function inicializar_bloco_notas() {
 
 inicializar_autoavaliacao();
 inicializar_bloco_notas();
+inicializar_zoom_calendario_mobile();
 regenerar_calendario();
 
 const menu_principal = document.getElementById("botão_menu");

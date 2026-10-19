@@ -33,7 +33,7 @@
       #botao_calculadora {
         position: absolute;
         top: 12px;
-        left: 330px;
+        left: 335px;
         right: auto;
         transform: translateX(-50%);
         min-height: var(--mobile-toolbar-height);
@@ -45,6 +45,10 @@
         left: 2px;
         width: var(--mobile-calendar-width);
         box-sizing: border-box;
+        --mobile-calendar-pinch-scale: 1;
+        transform: scale(var(--mobile-calendar-pinch-scale));
+        transform-origin: top left;
+        touch-action: pan-x pan-y;
       }
 
       #titulo_calendario {
@@ -57,7 +61,7 @@
       }
 
       #botao_mes_seguinte {
-        left: calc(var(--mobile-gutter) + var(--mobile-calendar-width) - 57px);
+        left: calc(100vw - var(--mobile-gutter) - 40px);
         right: auto;
       }
 
