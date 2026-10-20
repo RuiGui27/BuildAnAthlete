@@ -131,6 +131,7 @@
       #tela_editar_treino:not(.modo_leitura) #botao_modo_treino {
         position: relative;
         top: -6px;
+        left: -15px;
         margin-top: 14px;
         margin-bottom: 6px;
       }
