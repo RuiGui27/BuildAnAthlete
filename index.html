@@ -300,6 +300,32 @@
           <strong>Keep in mind that this calculator uses certain formulas that are not scientifically proven and are not 100% accurate.</strong>
         </p>
 
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_peso_percentagem">
+          <h3 id="titulo_calcular_peso_percentagem">Calculate weight or percentage</h3>
+          <div class="calculadora_campos">
+            <label>Weight 1<input type="text" data-calc="wp-weight1" inputmode="decimal" autocomplete="off"></label>
+            <label>%1<input type="text" data-calc="wp-perc1" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <div class="calculadora_campos">
+            <label>Weight 2<input type="text" data-calc="wp-weight2" inputmode="decimal" autocomplete="off"></label>
+            <label>%2<input type="text" data-calc="wp-perc2" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <p class="calculadora_resultado" data-result="weight-percentage" role="status" aria-live="polite">Weight or percentage: Enter 3 of the 4 fields to calculate.</p>
+          <p class="calculadora_nota_info">Fill in exactly 3 of the 4 fields and leave the fourth empty. The missing value is calculated with a simple rule of three: Weight 1 / %1 = Weight 2 / %2.</p>
+        </section>
+
+        <section class="calculadora_secao" aria-labelledby="titulo_calcular_forca_relativa">
+          <h3 id="titulo_calcular_forca_relativa">Calculate relative strength</h3>
+          <div class="calculadora_campos">
+            <label>Weight / Power<input type="text" data-calc="rel-weight" inputmode="decimal" autocomplete="off"></label>
+            <label>Unit<select data-calc="unit-rel-weight"><option value="Kg">Kg</option><option value="Lb">Lb</option><option value="W">W</option></select></label>
+            <label>BW<input type="text" data-calc="rel-bw" inputmode="decimal" autocomplete="off"></label>
+            <label>Unit<select data-calc="unit-rel-bw"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
+          </div>
+          <p class="calculadora_resultado" data-result="relative" role="status" aria-live="polite">Relative strength: Enter values to calculate.</p>
+          <p class="calculadora_nota_info">The result is the weight (or power) divided by BW, and has no unit. Kg and Lb values are converted before dividing, so the two units do not need to match.</p>
+        </section>
+
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_1rm">
           <h3 id="titulo_calcular_1rm">Calculate 1RM based on reps, RIR and weight used <small class="calculadora_nota_reps">(!) This calculation only loses a significant amount of precision after 16 total reps.</small></h3>
           <div class="calculadora_campos">
@@ -320,14 +346,16 @@
           <h3 id="titulo_calcular_reps">Calculate maximum reps based on the 1RM set for today and the weight used <small class="calculadora_nota_reps">(!) This calculation only loses a significant amount of precision after 16 total reps.</small></h3>
           <div class="calculadora_campos">
             <label>1RM<input type="number" data-calc="daily-1rm" min="0" step="any" inputmode="decimal"></label>
+            <label>Unit (RM)<select data-calc="unit-reps"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
             <label>Weight<input type="number" data-calc="weight-reps" min="0" step="any" inputmode="decimal"></label>
-            <label>Unit<select data-calc="unit-reps"><option value="Kg">Kg</option><option value="Lb">Lb</option></select></label>
+            <label>Unit (weight)<select data-calc="unit-reps-weight"><option value="Kg">Kg</option><option value="Lb">Lb</option><option value="%">%</option></select></label>
             <div class="calculadora_campo_musculos">
               <label>Number of muscles groups involved<input type="number" data-calc="muscles-reps" min="1" step="1" inputmode="numeric"></label>
               <span class="calculadora_info_musculos"><strong>(!)</strong> Do not count your forearms and hands, as these are small muscles and should not be the limiting factor in your heaviest lifts.</span>
             </div>
           </div>
           <p class="calculadora_resultado" data-result="reps" role="status" aria-live="polite">Maximum reps: Enter values to calculate.</p>
+          <p class="calculadora_nota_info">If Unit (weight) is %, the weight is a percentage of the 1RM above, so the value is converted to the 1RM unit before the calculation.</p>
         </section>
 
         <section class="calculadora_secao" aria-labelledby="titulo_calcular_peso">

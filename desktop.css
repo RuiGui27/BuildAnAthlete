@@ -1304,7 +1304,7 @@
         opacity: 1;
     }
 
-    #tela_editar_treino.modo_visualizacao_alvo button:not(#botão_fechar_tela_editar_treino),
+    #tela_editar_treino.modo_visualizacao_alvo button:not(#botão_fechar_tela_editar_treino):not(.ex_numero),
     #tela_editar_treino.modo_visualizacao_alvo .campo_autoavaliacao_treino {
         display: none !important;
     }

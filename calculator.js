@@ -5,6 +5,9 @@ const KILOGRAMS_PER_POUND = 0.45359237;
 const STORAGE_TIPTOE = "calculator_jump_tiptoe";
 const unidades_tiptoe = { frames: "cm", time: "cm" };
 const unidades_peso = { "1rm": "Kg", reps: "Kg", target: "Kg" };
+const unidades_forca_relativa = { weight: "Kg", bw: "Kg" };
+const unidades_weight_reps = { weight: "Kg" };
+const CAMPOS_DECIMAIS = ["rel-weight", "rel-bw", "wp-weight1", "wp-perc1", "wp-weight2", "wp-perc2"];
 
 function restaurar_valores_tiptoe() {
     const guardado = localStorage.getItem(STORAGE_TIPTOE);
@@ -99,6 +102,12 @@ function calcular_1rm() {
     definir_resultado_calculadora("1rm", `1RM: ${resultado}${forcaRelativa}`);
 }
 
+function peso_reps_na_unidade_rm(peso, unidadePeso, unidadeRM, oneRepMax) {
+    if (unidadePeso === "%") return peso / 100 * oneRepMax;
+    if (unidadePeso === unidadeRM) return peso;
+    return unidadeRM === "Lb" ? peso / KILOGRAMS_PER_POUND : peso * KILOGRAMS_PER_POUND;
+}
+
 function calcular_reps() {
     const oneRepMax = ler_valor_calculadora("daily-1rm");
     const weight = ler_valor_calculadora("weight-reps");
@@ -108,12 +117,15 @@ function calcular_reps() {
         definir_resultado_calculadora("reps", "Maximum reps: Enter valid values to calculate.");
         return;
     }
-    if (weight > oneRepMax) {
+    const unidadeRM = document.querySelector('[data-calc="unit-reps"]').value;
+    const unidadePeso = document.querySelector('[data-calc="unit-reps-weight"]').value;
+    const pesoRM = peso_reps_na_unidade_rm(weight, unidadePeso, unidadeRM, oneRepMax);
+    if (pesoRM > oneRepMax) {
         definir_resultado_calculadora("reps", "Maximum reps: Weight cannot exceed the 1RM.");
         return;
     }
-    const reps = (oneRepMax - weight) / (factor * weight);
-    const percentage = weight * 100 / oneRepMax;
+    const reps = (oneRepMax - pesoRM) / (factor * pesoRM);
+    const percentage = pesoRM * 100 / oneRepMax;
     definir_resultado_calculadora(
         "reps",
         `${formatar_resultado_calculadora(reps)} reps @ ${formatar_resultado_calculadora(percentage)}%`
@@ -138,6 +150,59 @@ function calcular_peso_alvo() {
         "target-weight",
         `Weight: ${formatar_resultado_calculadora(weight)} ${unit} -> ${formatar_resultado_calculadora(percentage)}%`
     );
+}
+
+function calcular_peso_percentagem() {
+    const campos = {
+        weight1: ler_valor_calculadora("wp-weight1"),
+        perc1: ler_valor_calculadora("wp-perc1"),
+        weight2: ler_valor_calculadora("wp-weight2"),
+        perc2: ler_valor_calculadora("wp-perc2")
+    };
+    const preenchidos = Object.keys(campos).filter(chave => campos[chave] !== null);
+    if (preenchidos.length === 4) {
+        definir_resultado_calculadora("weight-percentage", "Weight or percentage: Only 3 of the 4 fields can be filled. Leave one empty.");
+        return;
+    }
+    if (preenchidos.length < 3) {
+        definir_resultado_calculadora("weight-percentage", "Weight or percentage: Enter 3 of the 4 fields to calculate.");
+        return;
+    }
+    if (preenchidos.some(chave => campos[chave] <= 0)) {
+        definir_resultado_calculadora("weight-percentage", "Weight or percentage: Values must be greater than zero.");
+        return;
+    }
+    const vazio = Object.keys(campos).find(chave => campos[chave] === null);
+    let nome;
+    let valor;
+    if (vazio === "weight1") {
+        nome = "Weight 1";
+        valor = campos.weight2 * campos.perc1 / campos.perc2;
+    } else if (vazio === "perc1") {
+        nome = "%1";
+        valor = campos.perc2 * campos.weight1 / campos.weight2;
+    } else if (vazio === "weight2") {
+        nome = "Weight 2";
+        valor = campos.weight1 * campos.perc2 / campos.perc1;
+    } else {
+        nome = "%2";
+        valor = campos.perc1 * campos.weight2 / campos.weight1;
+    }
+    definir_resultado_calculadora("weight-percentage", `Weight or percentage: ${nome} = ${formatar_resultado_calculadora(valor)}`);
+}
+
+function calcular_forca_relativa() {
+    const peso = ler_valor_calculadora("rel-weight");
+    const bw = ler_valor_calculadora("rel-bw");
+    if (peso === null || bw === null || bw <= 0) {
+        definir_resultado_calculadora("relative", "Relative strength: Enter valid values to calculate.");
+        return;
+    }
+    const unidadePeso = document.querySelector('[data-calc="unit-rel-weight"]').value;
+    const unidadeBw = document.querySelector('[data-calc="unit-rel-bw"]').value;
+    const pesoKg = unidadePeso === "Lb" ? peso * KILOGRAMS_PER_POUND : peso;
+    const bwKg = unidadeBw === "Lb" ? bw * KILOGRAMS_PER_POUND : bw;
+    definir_resultado_calculadora("relative", `Relative strength: ${formatar_resultado_calculadora(pesoKg / bwKg)}`);
 }
 
 function calcular_rsi_frames() {
@@ -278,6 +343,27 @@ function atualizar_calculadora(event) {
     if (["muscles-1rm", "muscles-reps", "muscles-target"].includes(nome) && campo.value && !/^\d+$/.test(campo.value)) {
         campo.value = "";
     }
+    if (CAMPOS_DECIMAIS.includes(nome)) {
+        const limpo = campo.value.replace(/,/g, ".").replace(/[^0-9.]/g, "");
+        const partes = limpo.split(".");
+        const sanitizado = partes.length > 2 ? `${partes[0]}.${partes.slice(1).join("")}` : limpo;
+        if (campo.value !== sanitizado) campo.value = sanitizado;
+    }
+    if (nome === "unit-rel-weight" || nome === "unit-rel-bw") {
+        if (event.type !== "change") return;
+        const chave = nome === "unit-rel-weight" ? "weight" : "bw";
+        const nomeCampo = chave === "weight" ? "rel-weight" : "rel-bw";
+        const campoValor = document.querySelector(`[data-calc="${nomeCampo}"]`);
+        const unidadeAnterior = unidades_forca_relativa[chave];
+        const unidadeNova = campo.value;
+        const envolveW = unidadeAnterior === "W" || unidadeNova === "W";
+        if (campoValor.value !== "" && !envolveW) {
+            campoValor.value = converter_peso_calculadora(Number(campoValor.value), unidadeAnterior, unidadeNova);
+        }
+        unidades_forca_relativa[chave] = unidadeNova;
+        calcular_forca_relativa();
+        return;
+    }
     if (["unit-1rm", "unit-reps", "unit-target"].includes(nome)) {
         if (event.type !== "change") return;
         const calculo = nome === "unit-1rm" ? "1rm" : nome === "unit-reps" ? "reps" : "target";
@@ -286,7 +372,7 @@ function atualizar_calculadora(event) {
         const camposPeso = calculo === "1rm"
             ? ["weight-1rm", "bw-1rm"]
             : calculo === "reps"
-                ? ["daily-1rm", "weight-reps"]
+                ? ["daily-1rm"]
                 : ["target-1rm"];
         camposPeso.forEach(nomeCampo => {
             const campoPeso = document.querySelector(`[data-calc="${nomeCampo}"]`);
@@ -358,10 +444,30 @@ function atualizar_calculadora(event) {
         return;
     }
 
+    if (nome === "unit-reps-weight") {
+        if (event.type !== "change") return;
+        const unidadeAnterior = unidades_weight_reps.weight;
+        const unidadeNova = campo.value;
+        const campoPeso = document.querySelector('[data-calc="weight-reps"]');
+        const envolvePercentagem = unidadeAnterior === "%" || unidadeNova === "%";
+        if (campoPeso.value !== "" && !envolvePercentagem) {
+            campoPeso.value = converter_peso_calculadora(Number(campoPeso.value), unidadeAnterior, unidadeNova);
+        }
+        unidades_weight_reps.weight = unidadeNova;
+        calcular_reps();
+        return;
+    }
+
     if (["jump-tip-frames", "jump-tip-time"].includes(nome)) {
         guardar_valores_tiptoe();
     }
 
+    if (["wp-weight1", "wp-perc1", "wp-weight2", "wp-perc2"].includes(nome)) {
+        calcular_peso_percentagem();
+    }
+    if (["rel-weight", "rel-bw"].includes(nome)) {
+        calcular_forca_relativa();
+    }
     if (["reps-1rm", "rir", "weight-1rm", "bw-1rm", "unit-1rm", "muscles-1rm"].includes(nome)) {
         calcular_1rm();
     }

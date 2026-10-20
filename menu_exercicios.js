@@ -4,8 +4,8 @@
    ========================================================================== */
 
 const CHAVE_STORAGE_EXERCICIOS = "dicionario_exercicios";
-const MAX_SELECAO_CATEGORIAS = 4;
-const MAX_SELECAO_MUSCULOS = 7;
+const MAX_SELECAO_CATEGORIAS = 8;
+const MAX_SELECAO_MUSCULOS = 8;
 
 // Categorias definidas pelo utilizador
 const CATEGORIAS_PADRAO = [
