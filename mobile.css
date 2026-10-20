@@ -41,7 +41,23 @@
         font-size: 16px;
       }
 
+      #calendario_scroll {
+        display: block;
+        position: absolute;
+        top: 125px;
+        left: 0;
+        width: 100vw;
+        /* o calendário passa a ter o seu próprio scroll vertical; o resto da página (botões) não se mexe */
+        max-height: calc(100dvh - 125px - var(--mobile-nav-safe));
+        overflow-x: auto;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+
       #calendario {
+        position: relative;
+        top: 0;
         left: 2px;
         width: var(--mobile-calendar-width);
         box-sizing: border-box;
@@ -60,12 +76,22 @@
         left: var(--mobile-gutter);
       }
 
+      #botao_home_calendario {
+        left: calc(var(--mobile-gutter) + 45px);
+      }
+
+      #botao_target_calendario {
+        left: calc(100vw - var(--mobile-gutter) - 85px);
+      }
+
       #botao_mes_seguinte {
         left: calc(100vw - var(--mobile-gutter) - 40px);
         right: auto;
       }
 
       #botao_mes_anterior,
+      #botao_home_calendario,
+      #botao_target_calendario,
       #botao_mes_seguinte {
         top: 72px;
         width: 40px;

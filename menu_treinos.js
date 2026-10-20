@@ -66,7 +66,7 @@ function chave_treino(dia, mes, ano) {
 
 /* abrir o dia (clicar na célula do calendário) */
 
-function abrir_dia(dia, mes, ano) {
+function abrir_dia(dia, mes, ano, leituraForcada = null, visualizacaoAlvo = false) {
     const chave = chave_treino(dia, mes, ano);
     const treino_do_dia = (treinos[chave] || [])[0] || null;
 
@@ -79,15 +79,17 @@ function abrir_dia(dia, mes, ano) {
 
     // qualquer dia (passado, hoje ou futuro) abre o ecrã de edição
     treino_em_edicao = treino_do_dia ? treino_do_dia.id : null; // null = treino novo
-    mostrar_tela_editar_treino();
+    mostrar_tela_editar_treino(leituraForcada, visualizacaoAlvo);
 }
 
 /* tela editar treino */
 
-function mostrar_tela_editar_treino() {
+function mostrar_tela_editar_treino(leituraForcada = null, visualizacaoAlvo = false) {
     retorno_para_edicao = null;
     const chave = chave_treino(dia_atual, mes_atual, ano_atual);
-    definir_modo_leitura(modos_treino_por_dia[chave] === true);
+    const leitura = leituraForcada === null ? modos_treino_por_dia[chave] === true : leituraForcada;
+    document.getElementById("tela_editar_treino").classList.toggle("modo_visualizacao_alvo", visualizacaoAlvo);
+    definir_modo_leitura(leitura, false);
     document.getElementById("lista_exercicios").innerHTML = "";
     document.getElementById("lista_exercicios").scrollTop = 0; // abre sempre no topo
 
@@ -140,7 +142,7 @@ function mostrar_tela_editar_treino() {
     }
 
     atualizar_ligacoes_exercicios();
-    definir_modo_leitura(modos_treino_por_dia[chave] === true);
+    definir_modo_leitura(leitura, false);
     document.getElementById("tela_editar_treino").style.display = "block";
     requestAnimationFrame(atualizar_ligacoes_exercicios);
 }
@@ -151,7 +153,9 @@ function fechar_tela_editar_treino(){
     temporizador_autoavaliacao = null;
     treino_em_edicao = null;
     fechar_info_exercicio();
-    document.getElementById("tela_editar_treino").style.display = "none";
+    const tela = document.getElementById("tela_editar_treino");
+    tela.style.display = "none";
+    tela.classList.remove("modo_visualizacao_alvo");
     regenerar_calendario();
     document.getElementById("botão_menu").style.display = "block";
     document.getElementById("botao_bloco_notas").style.display = "block";
@@ -450,7 +454,7 @@ function fechar_info_exercicio() {
     if (tela) tela.style.display = "none";
 }
 
-function definir_modo_leitura(leitura) {
+function definir_modo_leitura(leitura, guardarPreferencia = true) {
     modo_leitura = leitura;
     const tela = document.getElementById("tela_editar_treino");
     tela.classList.toggle("modo_leitura", leitura);
@@ -467,7 +471,7 @@ function definir_modo_leitura(leitura) {
     }
     atualizar_botao_agrupamento();
 
-    if (Number.isInteger(dia_atual) && Number.isInteger(mes_atual) && Number.isInteger(ano_atual)) {
+    if (guardarPreferencia && Number.isInteger(dia_atual) && Number.isInteger(mes_atual) && Number.isInteger(ano_atual)) {
         const chave = chave_treino(dia_atual, mes_atual, ano_atual);
         modos_treino_por_dia[chave] = leitura;
         localStorage.setItem(CHAVE_MODOS_TREINO_DIA, JSON.stringify(modos_treino_por_dia));
@@ -680,7 +684,7 @@ function unidades_de_medida() {
 
 const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)"];
 const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours"];
-const MAX_SECOES_TABELA = 5;
+const MAX_SECOES_TABELA = 8;
 const MAX_SERIES_TABELA = 8;
 
 function sufixo_tipo_serie(tipo) {
@@ -1693,11 +1697,15 @@ function criar_preview_treino(treino) {
             if (ex.rm_diario) tooltip.push(`RM: ${ex.rm_diario} ${ex.rm_unidade || ""}`.trim());
             linha.title = tooltip.join("   ");
 
-            if (exercicio_com_tabela_vazia(ex)) {
+            const semNome = !String(ex.nome || "").trim();
+            const tabelaIncompleta = exercicio_com_tabela_vazia(ex);
+            if (semNome || tabelaIncompleta) {
                 const alerta = document.createElement("span");
                 alerta.classList.add("preview_alerta");
                 alerta.textContent = "!";
-                alerta.title = "The sets table has empty fields";
+                alerta.title = semNome && tabelaIncompleta
+                    ? "The exercise has no name and the sets table has empty fields"
+                    : semNome ? "The exercise has no name" : "The sets table has empty fields";
                 linha.appendChild(alerta);
             }
             linha.appendChild(nome);
@@ -1821,6 +1829,18 @@ function abrir_calendario() {
     mostrar_acessorios_de_calendario()
 }
 
+function ir_para_mes_atual() {
+    const agora = new Date();
+    mes = agora.getMonth() + 1;
+    ano = agora.getFullYear();
+    regenerar_calendario();
+}
+
+function abrir_treino_atual_em_leitura() {
+    const agora = new Date();
+    abrir_dia(agora.getDate(), agora.getMonth() + 1, agora.getFullYear(), true, true);
+}
+
 function mudar_mes(op) {
     if (op === "+") {
         mes++;
@@ -1859,6 +1879,8 @@ function fechar_calendario() {
     const calendario = document.getElementById('calendario');
     calendario.style.display = "none";
     document.getElementById("botao_mes_anterior").style.display = "none";
+    document.getElementById("botao_home_calendario").style.display = "none";
+    document.getElementById("botao_target_calendario").style.display = "none";
     document.getElementById("botao_mes_seguinte").style.display = "none";
     const titulo = document.getElementById("titulo_calendario");
     titulo.style.display = "none";
@@ -1866,6 +1888,8 @@ function fechar_calendario() {
 
 function mostrar_acessorios_de_calendario() {
     document.getElementById("botao_mes_anterior").style.display = "block";
+    document.getElementById("botao_home_calendario").style.display = "block";
+    document.getElementById("botao_target_calendario").style.display = "block";
     document.getElementById("botao_mes_seguinte").style.display = "block";
     document.getElementById("titulo_calendario").style.display = "block";
 }

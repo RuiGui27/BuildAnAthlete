@@ -19,15 +19,20 @@
         <a href="#" onclick="abrir_calendario(); return false;">Workout schedule</a>
         <a href="#" onclick="abrir_dicionario_exercicios(); return false;">Dictionary of exercises</a>
         <a href="#" onclick="alert('This feature has not yet been implemented!'); return false;">Athlete</a>
+        <a href="#" onclick="exportar_backup(); return false;">Export</a>
+        <a href="#" onclick="abrir_seletor_importacao(); return false;">Import</a>
     </div>
+    <input type="file" id="ficheiro_importacao_backup" accept="application/json,.json" hidden onchange="importar_backup(event)">
   </div>
 
   <button type="button" id="botao_bloco_notas" onclick="abrir_bloco_notas()">Note Block</button>
   <button type="button" id="botao_calculadora" onclick="abrir_calculadora()">Calc</button>
 
   <button id="botao_mes_anterior" onclick="mudar_mes('-')"><</button>
+  <button type="button" id="botao_home_calendario" title="Current month" aria-label="Current month" onclick="ir_para_mes_atual()">⌂</button>
   <p id="titulo_calendario"></p>
-  <div id="calendario"></div>
+  <div id="calendario_scroll"><div id="calendario"></div></div>
+  <button type="button" id="botao_target_calendario" title="Today's workout in reading mode" aria-label="Today's workout in reading mode" onclick="abrir_treino_atual_em_leitura()">◎</button>
   <button id="botao_mes_seguinte" onclick="mudar_mes('+')">></button>
 
   <!-- TELA: DICIONÁRIO DE EXERCÍCIOS -->
@@ -502,5 +507,6 @@
   <script src="menu_exercicios.js"></script>
   <script src="menu_treinos.js"></script>
   <script src="calculator.js"></script>
+  <script src="backup.js"></script>
 </body>
 </html>

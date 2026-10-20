@@ -605,7 +605,7 @@
 
     #botao_modo_treino {
       display: block;
-      margin: 20px 30px 0 15px;
+      margin: 20px 30px 0 30px;
       padding: 8px 16px;
       background-color: #2d6187;
       color: white;
@@ -623,6 +623,10 @@
         right: 10px;
     }
 
+    #calendario_scroll {
+      display: contents;
+    }
+
     #botao_mes_anterior,
     #botao_mes_seguinte {
       position: absolute;
@@ -632,6 +636,7 @@
       font-size: 24px;
       cursor: pointer;
       display: none;
+      z-index: 1;
     }
 
     #botao_mes_anterior {
@@ -640,11 +645,43 @@
     }
 
     #botao_mes_seguinte {
-      left: 1307px;
+      left: 1261px;
       filter: brightness(0.88);
     }
 
+    /* casa e alvo: em cima do calendário, ao lado do título (mês e ano), como no telemóvel.
+       Os símbolos são desenhados ao centro do botão (background-image) em vez de texto, porque os
+       símbolos de texto ⌂ e ◎ ficavam deslocados para a direita. */
+    #botao_home_calendario,
+    #botao_target_calendario {
+      position: absolute;
+      top: 72px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: 0;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 24px 24px;
+      cursor: pointer;
+      display: none;
+      z-index: 1;
+      filter: brightness(0.88);
+    }
+
+    #botao_home_calendario {
+      left: 556px; /* à esquerda do título (centro em 700px; o título mais largo tem cerca de 170px) */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11.5 12 4l9 7.5'/%3E%3Cpath d='M5.5 10v10h13V10'/%3E%3C/svg%3E");
+    }
+
+    #botao_target_calendario {
+      left: 804px; /* à direita do título */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3C/svg%3E");
+    }
+
     #botao_mes_anterior:hover,
+    #botao_home_calendario:hover,
+    #botao_target_calendario:hover,
     #botao_mes_seguinte:hover {
       filter: brightness(0.78);
     }
@@ -1035,11 +1072,11 @@
     }
 
     .ex_th_sets {
-        min-width: 58px;
+        min-width: 68px;
     }
 
     .ex_cel_sets {
-        width: 52px;
+        width: 62px;
         padding: 4px 2px;
         box-sizing: border-box;
         text-align: center;
@@ -1047,7 +1084,7 @@
 
     .ex_cel_reps,
     .ex_cel_int {
-        width: 56px;
+        width: 66px;
         padding: 4px;
         box-sizing: border-box;
         text-align: center;
@@ -1065,7 +1102,7 @@
     }
 
     .ex_cel_valor_serie .ex_cel_reps {
-        width: 42px;
+        width: 52px;
     }
 
     .ex_sufixo_serie {
@@ -1265,6 +1302,11 @@
         box-shadow: none;
         color: #1f3f57;
         opacity: 1;
+    }
+
+    #tela_editar_treino.modo_visualizacao_alvo button:not(#botão_fechar_tela_editar_treino),
+    #tela_editar_treino.modo_visualizacao_alvo .campo_autoavaliacao_treino {
+        display: none !important;
     }
 
     #tela_info_exercicio {
