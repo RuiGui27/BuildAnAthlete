@@ -699,7 +699,7 @@ function unidades_de_medida() {
 
 /* ---------- tabela de séries: secções (reps | intensidade) x grupos de séries ---------- */
 
-const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "__"];
+const UNIDADES_INTENSIDADE = ["%", "Lb", "Kg", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "__"];
 const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours", "__"];
 const MAX_SECOES_TABELA = 8;
 const MAX_SERIES_TABELA = 8;
@@ -1672,7 +1672,6 @@ function confirmar_limpar_treino() {
     contador_exercicios = 0;
     contador_separadores = 0;
     fechar_confirmacao_limpar_treino();
-    fechar_tela_editar_treino();
 }
 
 (function ligar_modal_limpar_treino() {

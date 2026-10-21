@@ -160,6 +160,11 @@
       gap: 10px;
     }
 
+    /* "Calculate weight or percentage": mais espaço entre a 1.ª linha de campos e a 2.ª (com as legendas) */
+    .calculadora_secao[aria-labelledby="titulo_calcular_peso_percentagem"] .calculadora_campos + .calculadora_campos {
+      margin-top: 8px;
+    }
+
     .calculadora_campos label {
       display: flex;
       flex-direction: column;

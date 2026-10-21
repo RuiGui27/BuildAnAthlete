@@ -58,6 +58,7 @@ let MUSCULOS_EXERCICIOS = MUSCULOS_PADRAO.slice();
 // Unidades de medida para PR
 const UNIDADES_PR = [
     "Kg",
+    "%",
     "Lb",
     "m/s",
     "yards",
@@ -70,7 +71,6 @@ const UNIDADES_PR = [
     "seconds",
     "minutes",
     "hours",
-    "%",
     "reps",
     "__"
 ];
