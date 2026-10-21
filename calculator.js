@@ -72,9 +72,40 @@ function converter_peso_calculadora(valor, unidadeAnterior, unidadeNova) {
 
 function fator_reps_calculadora(musculos) {
     if (!Number.isInteger(musculos) || musculos < 1) return null;
-    if (musculos <= 3) return 0.03333;
-    if (musculos <= 5) return 0.045;
+    if (musculos <= 4) return 0.03333;
+    if (musculos <= 6) return 0.045;
     return 0.0725;
+}
+
+const TABELA_PERCENTAGENS_RM = [
+    { ate_musculos: 4, tres: 92, dois: 96 },
+    { ate_musculos: 6, tres: 88.75, dois: 93.75 },
+    { ate_musculos: Infinity, tres: 83.75, dois: 90 }
+];
+const TOLERANCIA_PERCENTAGEM_RM = 0.01;
+
+function tabela_percentagens_calculadora(musculos) {
+    return TABELA_PERCENTAGENS_RM.find(tabela => musculos <= tabela.ate_musculos);
+}
+
+function um_rm_calculadora(reps, rir, weight, musculos, factor) {
+    if (reps === 1) return weight;
+    const tabela = tabela_percentagens_calculadora(musculos);
+    if (reps === 2) return weight * 100 / tabela.dois;
+    if (reps === 3) return weight * 100 / tabela.tres;
+    return factor * (reps + rir) * weight + weight;
+}
+
+function repeticoes_pela_tabela_calculadora(percentagem, musculos) {
+    const bandas = musculos <= 4
+        ? { tresMin: 88.25, tresMax: 92, doisMax: 96 }
+        : musculos <= 6
+            ? { tresMin: 84.75, tresMax: 88.75, doisMax: 93.75 }
+            : { tresMin: 77.5, tresMax: 83.75, doisMax: 90 };
+    if (percentagem >= bandas.tresMin && percentagem <= bandas.tresMax) return 3;
+    if (percentagem > bandas.tresMax && percentagem <= bandas.doisMax) return 2;
+    if (percentagem > bandas.doisMax) return 1;
+    return null;
 }
 
 function definir_resultado_calculadora(nome, texto) {
@@ -95,7 +126,7 @@ function calcular_1rm() {
         definir_resultado_calculadora("1rm", "1RM: Enter valid values to calculate.");
         return;
     }
-    const oneRepMax = factor * (reps + rir) * weight + weight;
+    const oneRepMax = um_rm_calculadora(reps, rir, weight, muscles, factor);
     const unit = document.querySelector('[data-calc="unit-1rm"]').value;
     const resultado = `${formatar_resultado_calculadora(oneRepMax)} ${unit}`;
     const forcaRelativa = bw === null ? "" : ` -> ${formatar_resultado_calculadora(oneRepMax / bw)} BW`;
@@ -120,12 +151,13 @@ function calcular_reps() {
     const unidadeRM = document.querySelector('[data-calc="unit-reps"]').value;
     const unidadePeso = document.querySelector('[data-calc="unit-reps-weight"]').value;
     const pesoRM = peso_reps_na_unidade_rm(weight, unidadePeso, unidadeRM, oneRepMax);
-    if (pesoRM > oneRepMax) {
+    const percentage = pesoRM * 100 / oneRepMax;
+    if (percentage > 100 + TOLERANCIA_PERCENTAGEM_RM) {
         definir_resultado_calculadora("reps", "Maximum reps: Weight cannot exceed the 1RM.");
         return;
     }
-    const reps = (oneRepMax - pesoRM) / (factor * pesoRM);
-    const percentage = pesoRM * 100 / oneRepMax;
+    const repsTabela = repeticoes_pela_tabela_calculadora(percentage, muscles);
+    const reps = repsTabela !== null ? repsTabela : (oneRepMax - pesoRM) / (factor * pesoRM);
     definir_resultado_calculadora(
         "reps",
         `${formatar_resultado_calculadora(reps)} reps @ ${formatar_resultado_calculadora(percentage)}%`
@@ -143,7 +175,12 @@ function calcular_peso_alvo() {
         return;
     }
     const rirFactor = muscles <= 3 ? 0.03333 : factor;
-    const weight = oneRepMax / (reps * factor + rir * rirFactor + 1);
+    const tabela = tabela_percentagens_calculadora(muscles);
+    let weight;
+    if (reps === 1) weight = oneRepMax;
+    else if (reps === 2) weight = oneRepMax * tabela.dois / 100;
+    else if (reps === 3) weight = oneRepMax * tabela.tres / 100;
+    else weight = oneRepMax / (reps * factor + rir * rirFactor + 1);
     const percentage = weight * 100 / oneRepMax;
     const unit = document.querySelector('[data-calc="unit-target"]').value;
     definir_resultado_calculadora(

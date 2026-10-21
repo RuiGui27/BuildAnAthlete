@@ -677,13 +677,13 @@ function so_numeros(input) {
 
 // as mesmas unidades do "Dictionary of exercises" (UNIDADES_PR, em menu_exercicios.js)
 function unidades_de_medida() {
-    return (typeof UNIDADES_PR !== "undefined") ? UNIDADES_PR : ["Kg", "Lb", "m/s", "yards", "meters", "Km", "miles", "cm", "in", "W", "seconds", "minutes", "hours", "%", "reps"];
+    return (typeof UNIDADES_PR !== "undefined") ? UNIDADES_PR : ["Kg", "Lb", "m/s", "yards", "meters", "Km", "miles", "cm", "in", "W", "seconds", "minutes", "hours", "%", "reps", "__"];
 }
 
 /* ---------- tabela de séries: secções (reps | intensidade) x grupos de séries ---------- */
 
-const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)"];
-const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours"];
+const UNIDADES_INTENSIDADE = ["Kg", "Lb", "%", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "__"];
+const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours", "__"];
 const MAX_SECOES_TABELA = 8;
 const MAX_SERIES_TABELA = 8;
 
