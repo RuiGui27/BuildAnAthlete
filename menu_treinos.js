@@ -145,6 +145,7 @@ function mostrar_tela_editar_treino(leituraForcada = null, visualizacaoAlvo = fa
     definir_modo_leitura(leitura, false);
     document.getElementById("tela_editar_treino").style.display = "block";
     requestAnimationFrame(atualizar_ligacoes_exercicios);
+    requestAnimationFrame(alinhar_botao_copiar_treino); // a tela já está visível e com o layout feito
 }
 
 function fechar_tela_editar_treino(){
@@ -470,6 +471,7 @@ function definir_modo_leitura(leitura, guardarPreferencia = true) {
         tela.querySelectorAll(".ex_agrupar_selecao").forEach(campo => { campo.checked = false; });
     }
     atualizar_botao_agrupamento();
+    alinhar_botao_copiar_treino();
 
     if (guardarPreferencia && Number.isInteger(dia_atual) && Number.isInteger(mes_atual) && Number.isInteger(ano_atual)) {
         const chave = chave_treino(dia_atual, mes_atual, ano_atual);
@@ -481,6 +483,21 @@ function definir_modo_leitura(leitura, guardarPreferencia = true) {
 function alternar_modo_treino() {
     definir_modo_leitura(!modo_leitura);
 }
+
+// no telemóvel, em modo de edição, o "Copy workout" fica com a mesma coluna esquerda do "Clear All".
+// A posição do "Clear All" depende da largura do "Save Workout", por isso mede-se no ecrã em vez de a fixar em CSS.
+function alinhar_botao_copiar_treino() {
+    const copiar = document.getElementById("botao_copiar_treino");
+    const limpar = document.getElementById("botao_limpar_treino");
+    if (!copiar || !limpar) return;
+    copiar.style.marginLeft = "";
+    const visivel = limpar.getClientRects().length > 0;
+    if (modo_leitura || !visivel || !window.matchMedia("(max-width: 500px)").matches) return;
+    const deslocamento = limpar.getBoundingClientRect().left - copiar.getBoundingClientRect().left;
+    copiar.style.marginLeft = `${Math.round(deslocamento)}px`;
+}
+
+window.addEventListener("resize", alinhar_botao_copiar_treino);
 
 function remover_separador(id) {
     const linha = document.getElementById(`separador_${id}`);
@@ -1306,6 +1323,19 @@ try {
     exercicio_copiado = null;
 }
 
+const CHAVE_TREINO_COPIADO = "treino_copiado";
+const CHAVE_ULTIMO_COPIADO = "ultimo_copiado";
+let treino_copiado = null; // { nome, itens: [...] } do último treino copiado
+let ultimo_copiado = null; // "exercicio" | "treino": o que foi copiado por último (é isso que o Paste cola)
+
+try {
+    treino_copiado = JSON.parse(localStorage.getItem(CHAVE_TREINO_COPIADO)) || null;
+    ultimo_copiado = localStorage.getItem(CHAVE_ULTIMO_COPIADO) || null;
+} catch (erro) {
+    treino_copiado = null;
+    ultimo_copiado = null;
+}
+
 // lê tudo o que o utilizador já definiu na caixa do exercício (mesmo formato com que o treino é guardado)
 function ler_dados_exercicio(linha) {
     const escolhido = linha._exercicio || { nome: "", categoria: "", musculo: "" };
@@ -1326,8 +1356,10 @@ function ler_dados_exercicio(linha) {
 function copiar_exercicio(linha) {
     const dados = ler_dados_exercicio(linha);
     exercicio_copiado = dados;
+    ultimo_copiado = "exercicio";
     try {
         localStorage.setItem(CHAVE_EXERCICIO_COPIADO, JSON.stringify(dados));
+        localStorage.setItem(CHAVE_ULTIMO_COPIADO, "exercicio");
     } catch (erro) {
         console.error("Unable to keep the copied exercise in browser storage:", erro);
     }
@@ -1337,6 +1369,10 @@ function copiar_exercicio(linha) {
 // "Paste": acrescenta no fim do treino uma caixa de exercício já preenchida com o exercício copiado
 function colar_exercicio() {
     if (modo_leitura) return;
+    if (ultimo_copiado === "treino") {
+        colar_treino();
+        return;
+    }
     if (!exercicio_copiado) {
         mostrar_notificacao("Nothing to paste yet. Copy an exercise first.");
         return;
@@ -1345,6 +1381,79 @@ function colar_exercicio() {
     const nova = document.getElementById(`exercicio_${contador_exercicios}`);
     if (nova) nova.scrollIntoView({ behavior: "smooth", block: "nearest" });
     mostrar_notificacao("Exercise pasted");
+}
+
+// tudo o que está no ecrã do treino, com os mesmos campos com que o treino é guardado (menos a autoavaliação)
+function ler_itens_treino() {
+    const itens = [];
+    document.getElementById("lista_exercicios").querySelectorAll(".linha_exercicio, .linha_separador").forEach(linha => {
+        if (linha.classList.contains("linha_separador")) {
+            itens.push({
+                separador: true,
+                nome: linha.querySelector(".input_nome_sep").value.trim(),
+                horas: linha.querySelector(".input_horas_sep").value,
+                minutos: linha.querySelector(".input_minutos_sep").value
+            });
+            return;
+        }
+        itens.push({
+            ...ler_dados_exercicio(linha),
+            grupos_ligacao: [...linha._linksAgrupamento] // as ligações entre exercícios também se copiam
+        });
+    });
+    return itens;
+}
+
+function copiar_treino() {
+    const itens = ler_itens_treino();
+    if (itens.length === 0) {
+        mostrar_notificacao("Nothing to copy yet. Add a workout section or an exercise first.");
+        return;
+    }
+    const nomes = itens.filter(item => item.separador && item.nome).map(item => item.nome);
+    const dados = { nome: [...new Set(nomes)].join(" / "), itens };
+
+    treino_copiado = dados;
+    ultimo_copiado = "treino";
+    try {
+        localStorage.setItem(CHAVE_TREINO_COPIADO, JSON.stringify(dados));
+        localStorage.setItem(CHAVE_ULTIMO_COPIADO, "treino");
+    } catch (erro) {
+        console.error("Unable to keep the copied workout in browser storage:", erro);
+    }
+    mostrar_notificacao(dados.nome ? `Workout copied: ${dados.nome}` : "Workout copied");
+}
+
+// cola no fim do treino atual todos os separadores e exercícios copiados, com as ligações entre eles
+function colar_treino() {
+    if (!treino_copiado || !Array.isArray(treino_copiado.itens) || treino_copiado.itens.length === 0) {
+        mostrar_notificacao("Nothing to paste yet. Copy an exercise or a workout first.");
+        return;
+    }
+
+    const lista = document.getElementById("lista_exercicios");
+    // cada ligação do treino copiado passa a uma ligação nova, para não se misturar com as que já existem
+    const ligacoes_novas = new Map();
+    const ligacao_nova = antiga => {
+        if (!ligacoes_novas.has(antiga)) {
+            ligacoes_novas.set(antiga, `ligacao_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+        }
+        return ligacoes_novas.get(antiga);
+    };
+
+    JSON.parse(JSON.stringify(treino_copiado.itens)).forEach(item => {
+        if (item.separador) {
+            adicionar_separador(item.horas, item.minutos, false, item.nome || "");
+            return;
+        }
+        item.grupos_ligacao = (item.grupos_ligacao || []).map(ligacao_nova);
+        adicionar_exercicio(false, item);
+    });
+
+    renumerar_exercicios();
+    atualizar_botao_agrupamento();
+    lista.scrollTop = lista.scrollHeight;
+    mostrar_notificacao("Workout pasted");
 }
 
 function abrir_notas_dia(dia, mes, ano) {

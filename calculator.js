@@ -89,10 +89,10 @@ function tabela_percentagens_calculadora(musculos) {
 }
 
 function um_rm_calculadora(reps, rir, weight, musculos, factor) {
-    if (reps === 1) return weight;
+    if (reps + rir === 1) return weight;
     const tabela = tabela_percentagens_calculadora(musculos);
-    if (reps === 2) return weight * 100 / tabela.dois;
-    if (reps === 3) return weight * 100 / tabela.tres;
+    if (reps + rir === 2) return weight * 100 / tabela.dois;
+    if (reps + rir === 3) return weight * 100 / tabela.tres;
     return factor * (reps + rir) * weight + weight;
 }
 
@@ -177,9 +177,9 @@ function calcular_peso_alvo() {
     const rirFactor = muscles <= 3 ? 0.03333 : factor;
     const tabela = tabela_percentagens_calculadora(muscles);
     let weight;
-    if (reps === 1) weight = oneRepMax;
-    else if (reps === 2) weight = oneRepMax * tabela.dois / 100;
-    else if (reps === 3) weight = oneRepMax * tabela.tres / 100;
+    if (reps + rir === 1) weight = oneRepMax;
+    else if (reps + rir === 2) weight = oneRepMax * tabela.dois / 100;
+    else if (reps + rir === 3) weight = oneRepMax * tabela.tres / 100;
     else weight = oneRepMax / (reps * factor + rir * rirFactor + 1);
     const percentage = weight * 100 / oneRepMax;
     const unit = document.querySelector('[data-calc="unit-target"]').value;

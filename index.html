@@ -227,9 +227,12 @@
     <div class="botoes_treino_acoes">
       <button type="button" id="botao_guardar_treino" onclick="guardar_treino()">Save Workout</button>
       <button type="button" id="botao_limpar_treino" onclick="abrir_confirmacao_limpar_treino()">Clear All</button>
-      <button type="button" id="botao_colar_exercicio" title="Paste the copied exercise at the end of this workout" onclick="colar_exercicio()">Paste</button>
+      <button type="button" id="botao_colar_exercicio" title="Paste the copied exercise or workout at the end of this workout" onclick="colar_exercicio()">Paste</button>
     </div>
-    <button type="button" id="botao_modo_treino" aria-pressed="false" onclick="alternar_modo_treino()">Editing mode</button>
+    <div class="linha_modo_treino">
+      <button type="button" id="botao_modo_treino" aria-pressed="false" onclick="alternar_modo_treino()">Editing Mode</button>
+      <button type="button" id="botao_copiar_treino" title="Copy this whole workout (all fields except the self-assessment)" onclick="copiar_treino()">Copy Workout</button>
+    </div>
 
     <div class="linha_botoes_exercicio">
       <button id="botao_adicionar_exercicio" onclick="adicionar_exercicio()">Add exercise</button>
