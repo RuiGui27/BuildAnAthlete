@@ -667,8 +667,13 @@ function mostrar_exercicio_escolhido(linha) {
     botao_info.disabled = !(ex && ex.nome && exercicio_dicionario_por_nome(ex.nome));
     botao_info.title = botao_info.disabled ? "No dictionary information for this exercise" : "Show dictionary information";
 
-    // "Save to dictionary" só aparece quando o exercício não está definido no dicionário
-    botao_dicionario.style.display = (ex && ex.nome && !existe_no_dicionario(ex.nome)) ? "inline-block" : "none";
+    // "Save to dictionary" quando o exercício ainda não está no dicionário; "Update" quando já lá está
+    const ja_no_dicionario = !!(ex && ex.nome && existe_no_dicionario(ex.nome));
+    botao_dicionario.style.display = (ex && ex.nome) ? "inline-block" : "none";
+    botao_dicionario.textContent = ja_no_dicionario ? "Update" : "Save to dictionary";
+    botao_dicionario.title = ja_no_dicionario
+        ? "Update this exercise in the Dictionary of exercises"
+        : "Define this exercise in the Dictionary of exercises";
 
     if (!ex || !ex.nome) {
         el.textContent = "No exercise selected";
@@ -1006,11 +1011,18 @@ function guardar_no_dicionario(linha) {
     const ex = linha._exercicio;
     if (!ex || !ex.nome) return;
 
-    retorno_para_edicao = { id_caixa: linha.id };
+    const existente = exercicio_dicionario_por_nome(ex.nome);
+    retorno_para_edicao = { id_caixa: linha.id, id_dicionario: existente ? existente.id : null };
 
     // esconde a tela de edição (o que já escreveste fica em memória) e abre o dicionário
     abrir_dicionario_exercicios();
     document.getElementById("botão_menu").style.display = "block";
+
+    if (existente) {
+        // já está no dicionário: abre essa entrada para edição ("Update Exercise")
+        iniciar_edicao_exercicio(existente.id);
+        return;
+    }
 
     // formulário "Add exercise" aberto, com o nome já preenchido
     limpar_formulario_exercicio();
@@ -1056,18 +1068,25 @@ if (typeof fechar_dicionario_exercicios === "function" && typeof guardar_exercic
 
     window.guardar_exercicio_dicionario = function() {
         const total_antes = exercicios_do_dicionario().length;
+        const id_em_edicao_antes = id_exercicio_em_edicao; // não é null quando estamos a atualizar uma entrada
         guardar_exercicio_original();
 
         if (!retorno_para_edicao) return;
 
         const lista = exercicios_do_dicionario();
-        if (lista.length > total_antes) { // exercício novo criado (se houve erros de validação, fica no formulário)
-            const novo = lista.reduce((a, b) => ((b.id || 0) > (a.id || 0) ? b : a));
-            const retorno = retorno_para_edicao;
-            retorno_para_edicao = null;
-            fechar_dicionario_original(false);
-            voltar_a_edicao_do_treino(retorno, novo);
-        }
+        const atualizacao = id_em_edicao_antes !== null;
+        // Atualização: o modo de edição termina (id volta a null) só quando a gravação foi feita.
+        // Criação: a lista cresce. Em ambos os casos, com erros de validação fica no formulário.
+        const gravado = atualizacao ? id_exercicio_em_edicao === null : lista.length > total_antes;
+        if (!gravado) return;
+
+        const entrada = atualizacao
+            ? lista.find(e => e.id === id_em_edicao_antes)
+            : lista.reduce((a, b) => ((b.id || 0) > (a.id || 0) ? b : a));
+        const retorno = retorno_para_edicao;
+        retorno_para_edicao = null;
+        fechar_dicionario_original(false);
+        voltar_a_edicao_do_treino(retorno, entrada || null);
     };
 }
 
@@ -2327,6 +2346,18 @@ inicializar_autoavaliacao();
 inicializar_bloco_notas();
 inicializar_zoom_calendario_mobile();
 regenerar_calendario();
+
+// ao abrir a app, fica sempre no Workout schedule (calendário), nunca com a tela de edição de um treino
+function iniciar_no_calendario() {
+    const tela_editar = document.getElementById("tela_editar_treino");
+    tela_editar.style.display = "none";
+    tela_editar.classList.remove("modo_visualizacao_alvo");
+    treino_em_edicao = null;
+    retorno_para_edicao = null;
+    document.getElementById("botão_menu").style.display = "block";
+    abrir_calendario();
+}
+iniciar_no_calendario();
 
 const menu_principal = document.getElementById("botão_menu");
 menu_principal.querySelector("button").addEventListener("click", () => {

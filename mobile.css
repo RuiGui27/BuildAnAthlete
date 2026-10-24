@@ -107,6 +107,8 @@
         height: var(--mobile-weekday-height);
       }
 
+      /* como no desktop: a barra de botões e o cabeçalho ficam fixos, e só a lista de exercícios desliza.
+         (antes, o painel inteiro tinha scroll e a barra subia com os exercícios) */
       #tela_editar_treino {
         position: fixed;
         top: calc(50% + 28px);
@@ -114,34 +116,50 @@
         width: calc(100vw - (2 * var(--mobile-gutter)));
         height: calc(100dvh - 76px);
         max-height: calc(100dvh - 76px);
-        overflow: auto;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
         transform: translate(-50%, -50%);
         box-sizing: border-box;
       }
 
+      #tela_editar_treino > :not(#lista_exercicios) {
+        flex-shrink: 0;
+      }
+
+      /* o JS mostra a tela com style.display = "block", que sobrepõe o flex acima; quando está visível usa flex
+         (quando está escondida, o style é "none" e este seletor não se aplica) */
+      #tela_editar_treino[style*="display: block"] {
+        display: flex !important;
+      }
+
       #lista_exercicios {
         position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
         width: 100%;
         max-height: none;
         overflow-x: hidden;
-        overflow-y: visible;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         box-sizing: border-box;
       }
 
       #tela_editar_treino:not(.modo_leitura) #botao_modo_treino {
         position: relative;
-        top: -15px;
+        top: 0;
         left: -15px;
-        margin-top: 14px;
-        margin-bottom: 6px;
+        margin-top: 0;
+        margin-bottom: 0;
       }
 
       /* "Copy workout" com as mesmas margens do botão de modo, para ficar na mesma linha (o alinhamento horizontal é feito em menu_treinos.js) */
       #tela_editar_treino:not(.modo_leitura) #botao_copiar_treino {
         position: relative;
-        top: -15px;
-        margin-top: 14px;
-        margin-bottom: 6px;
+        top: 0;
+        margin-top: 0;
+        margin-bottom: 0;
       }
 
       .linha_exercicio {
@@ -165,8 +183,8 @@
       .linha_botoes_exercicio {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-        padding: 0 10px;
+        gap: 6px;
+        padding: 0 10px 10px;   /* pequeno espaço entre os botões vermelhos e a lista */
         box-sizing: border-box;
       }
 
@@ -204,11 +222,20 @@
         padding-right: 36px; /* espaço para o botão de copiar */
       }
 
+      /* cabeçalho compacto: título, botões e linhas de botões mais juntos (sem margens grandes entre eles) */
+      #texto_edit_treino {
+        margin: 14px 0 8px;
+      }
+
       .botoes_treino_acoes {
         flex-wrap: wrap;
-        gap: 8px;
-        margin-left: 16px;
-        margin-right: 16px;
+        gap: 6px;
+        margin: 0 16px 8px;
+      }
+
+      .linha_modo_treino {
+        gap: 6px;
+        margin: 0 30px 8px;
       }
 
       .ex_selecionado {
@@ -408,7 +435,7 @@
         flex-direction: row;
         align-items: center;
         gap: 8px;
-        margin: 12px 12px 20px;
+        margin: 6px 12px 10px;
       }
 
       .campo_autoavaliacao_treino label {
