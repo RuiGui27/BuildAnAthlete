@@ -144,6 +144,7 @@ function mostrar_tela_editar_treino(leituraForcada = null, visualizacaoAlvo = fa
     atualizar_ligacoes_exercicios();
     definir_modo_leitura(leitura, false);
     document.getElementById("tela_editar_treino").style.display = "block";
+    ajustar_alturas_detalhes(); // a tela já está visível: cada descrição fica com a altura do texto
     requestAnimationFrame(atualizar_ligacoes_exercicios);
     requestAnimationFrame(alinhar_botao_copiar_treino); // a tela já está visível e com o layout feito
 }
@@ -498,6 +499,19 @@ function alinhar_botao_copiar_treino() {
 }
 
 window.addEventListener("resize", alinhar_botao_copiar_treino);
+
+// "Execution details" acompanha o texto: sem descrição fica só com 2 linhas, em vez de uma caixa vazia grande
+function ajustar_altura_detalhes(textarea) {
+    if (!textarea || textarea.offsetParent === null) return; // escondida: ajusta-se quando a tela aparecer
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight + textarea.offsetHeight - textarea.clientHeight}px`;
+}
+
+function ajustar_alturas_detalhes() {
+    document.querySelectorAll("#lista_exercicios .ex_textarea").forEach(ajustar_altura_detalhes);
+}
+
+window.addEventListener("resize", ajustar_alturas_detalhes);
 
 function remover_separador(id) {
     const linha = document.getElementById(`separador_${id}`);
@@ -1190,6 +1204,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
     const contador = linha.querySelector(".ex_contador");
     const atualizar_contador = () => { contador.textContent = `${textarea.value.length}/${MAX_CARACTERES_DETALHES}`; };
     textarea.addEventListener("input", atualizar_contador);
+    textarea.addEventListener("input", () => ajustar_altura_detalhes(textarea));
     atualizar_contador();
 
     // stipulated daily RM: só números + unidade (as mesmas do dicionário)
@@ -1227,6 +1242,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
     atualizar_sugestoes(linha);
 
     lista.appendChild(linha);
+    ajustar_altura_detalhes(textarea); // se a tela já está visível (ex.: exercício novo ou colado)
     renumerar_exercicios();
     atualizar_botao_agrupamento();
 
