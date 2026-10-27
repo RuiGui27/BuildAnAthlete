@@ -4,7 +4,7 @@
         --mobile-calendar-width: calc(200vw - (2 * var(--mobile-gutter)));
         --mobile-dictionary-top: 68px;
         --mobile-dictionary-height: calc(100dvh - var(--mobile-dictionary-top) - 8px);
-        --mobile-toolbar-height: 48px;
+        --mobile-toolbar-height: 34px;
         --mobile-day-height: 140px;
         --mobile-weekday-height: 42px;
         --mobile-nav-safe: 44px;        /* espaço reservado para a barra de navegação do Android */
@@ -20,7 +20,7 @@
       .menu > button,
       #botao_bloco_notas {
         min-height: var(--mobile-toolbar-height);
-        padding: 10px 14px;
+        padding: 6px 14px;
         font-size: 16px;
       }
 
@@ -37,7 +37,7 @@
         right: auto;
         transform: translateX(-50%);
         min-height: var(--mobile-toolbar-height);
-        padding: 10px 14px;
+        padding: 6px 14px;
         font-size: 16px;
       }
 
@@ -111,7 +111,7 @@
          (antes, o painel inteiro tinha scroll e a barra subia com os exercícios) */
       #tela_editar_treino {
         position: fixed;
-        top: calc(50% + 28px);
+        top: calc(50% + 12px);
         left: 50%;
         width: calc(100vw - (2 * var(--mobile-gutter)));
         height: calc(100dvh - 76px);
@@ -451,7 +451,21 @@
       }
 
       #tela_editar_treino.modo_leitura .campo_autoavaliacao_treino {
-        margin-top: 16px;
+        margin-top: 14px;
+      }
+
+      /* modo de leitura: cabeçalho mais baixo (título e botões mais juntos, sem linhas vazias por baixo dos botões) */
+      #tela_editar_treino.modo_leitura #texto_edit_treino {
+        margin: 8px 0 6px;
+      }
+
+      #tela_editar_treino.modo_leitura .botoes_treino_acoes,
+      #tela_editar_treino.modo_leitura .linha_botoes_exercicio {
+        display: none;
+      }
+
+      #tela_editar_treino.modo_leitura .linha_modo_treino {
+        margin: 0 30px;
       }
 
       #tela_editar_treino.modo_leitura .linha_exercicio {
@@ -461,7 +475,7 @@
 
       #tela_dicionario_exercicios {
         position: fixed;
-        top: var(--mobile-dictionary-top);
+        top: 56px;
         left: var(--mobile-gutter);
         width: calc(100vw - (2 * var(--mobile-gutter)));
         height: var(--mobile-dictionary-height);
