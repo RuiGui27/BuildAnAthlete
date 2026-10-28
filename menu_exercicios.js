@@ -72,6 +72,8 @@ const UNIDADES_PR = [
     "minutes",
     "hours",
     "reps",
+    "RSI",
+    "DRI",
     "__"
 ];
 

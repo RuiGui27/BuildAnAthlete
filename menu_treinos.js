@@ -139,6 +139,8 @@ function mostrar_tela_editar_treino(leituraForcada = null, visualizacaoAlvo = fa
         document.getElementById("texto_edit_treino").textContent =
             `New Workout - ${dia_atual}/${mes_atual}/${ano_atual}`;
         adicionar_separador("", "", false);
+        // separador inicial automático: ao colar um treino copiado, sai (se o nome não tiver sido escrito)
+        document.getElementById("lista_exercicios").lastElementChild.dataset.inicial = "1";
     }
 
     atualizar_ligacoes_exercicios();
@@ -713,23 +715,25 @@ function so_numeros(input) {
 
 // as mesmas unidades do "Dictionary of exercises" (UNIDADES_PR, em menu_exercicios.js)
 function unidades_de_medida() {
-    return (typeof UNIDADES_PR !== "undefined") ? UNIDADES_PR : ["Kg", "Lb", "m/s", "yards", "meters", "Km", "miles", "cm", "in", "W", "seconds", "minutes", "hours", "%", "reps", "__"];
+    return (typeof UNIDADES_PR !== "undefined") ? UNIDADES_PR : ["Kg", "Lb", "m/s", "yards", "meters", "Km", "miles", "cm", "in", "W", "seconds", "minutes", "hours", "%", "reps",  "RSI", "DRI", "__"];
 }
 
 /* ---------- tabela de séries: secções (reps | intensidade) x grupos de séries ---------- */
 
-const UNIDADES_INTENSIDADE = ["%", "Lb", "Kg", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "__"];
+const UNIDADES_INTENSIDADE = ["%", "Lb", "Kg", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "RSI", "DRI", "__"];
 const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours", "__"];
 const MAX_SECOES_TABELA = 8;
 const MAX_SERIES_TABELA = 8;
 
 function sufixo_tipo_serie(tipo) {
-    return tipo === "distance" ? "m" : tipo === "time" ? "s" : "reps";
+    return (tipo === "meters" || tipo === "distance") ? "m" : (tipo === "seconds" || tipo === "time") ? "s" : "reps";
 }
 
+// os tipos são sempre os nomes das opções do <select> (senão, o select fica sem valor ao redesenhar a tabela).
+// nomes antigos já guardados (time, distance, metrers) passam para os nomes atuais.
 function normalizar_tipo_serie(tipo) {
-    if (tipo === "metrers" || tipo === "meters") return "distance";
-    if (tipo === "seconds") return "time";
+    if (tipo === "time") return "seconds";
+    if (tipo === "distance" || tipo === "metrers") return "meters";
     return TIPOS_SERIE.includes(tipo) ? tipo : TIPOS_SERIE[0];
 }
 
@@ -1467,6 +1471,11 @@ function colar_treino() {
     }
 
     const lista = document.getElementById("lista_exercicios");
+    // o separador inicial automático de um treino novo sai, para ficar só o(s) separador(es) do treino colado
+    // (se já tiver um nome escrito, mantém-se, para não perder o que foi escrito)
+    lista.querySelectorAll('.linha_separador[data-inicial="1"]').forEach(linha => {
+        if (!linha.querySelector(".input_nome_sep").value.trim()) linha.remove();
+    });
     // cada ligação do treino copiado passa a uma ligação nova, para não se misturar com as que já existem
     const ligacoes_novas = new Map();
     const ligacao_nova = antiga => {
@@ -1487,6 +1496,7 @@ function colar_treino() {
 
     renumerar_exercicios();
     atualizar_botao_agrupamento();
+    atualizar_ligacoes_exercicios();
     lista.scrollTop = lista.scrollHeight;
     mostrar_notificacao("Workout pasted");
 }
