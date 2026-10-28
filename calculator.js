@@ -158,9 +158,13 @@ function calcular_reps() {
     }
     const repsTabela = repeticoes_pela_tabela_calculadora(percentage, muscles);
     const reps = repsTabela !== null ? repsTabela : (oneRepMax - pesoRM) / (factor * pesoRM);
+    // com % como unidade de peso, o peso aparece na unidade do RM (ex.: "5 reps @ 100 Kg"); com Kg/Lb continua em %
+    const peso_mostrado = unidadePeso === "%"
+        ? `${formatar_resultado_calculadora(pesoRM)} ${unidadeRM}`
+        : `${formatar_resultado_calculadora(percentage)}%`;
     definir_resultado_calculadora(
         "reps",
-        `${formatar_resultado_calculadora(reps)} reps @ ${formatar_resultado_calculadora(percentage)}%`
+        `${formatar_resultado_calculadora(reps)} reps @ ${peso_mostrado}`
     );
 }
 
