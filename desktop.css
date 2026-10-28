@@ -2390,6 +2390,7 @@
     .linha_input_pr {
       display: flex;
       gap: 6px;
+      align-items: center;
     }
 
     .linha_input_pr input {
@@ -2397,7 +2398,285 @@
     }
 
     .linha_input_pr select {
-      width: 110px;
+      width: 85px;
+      flex-shrink: 0;
+    }
+
+    #grupo_campo_pr .linha_input_pr input {
+      flex: 0 1 115px;
+      width: 115px;
+      min-width: 60px;
+    }
+
+    /* Botão Relate to */
+    .btn_relate_to {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffffff;
+      background: linear-gradient(135deg, #2d6187, #1a4a6e);
+      border: 1px solid #1a4a6e;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn_relate_to:hover {
+      background: linear-gradient(135deg, #3a7aa8, #2d6187);
+      box-shadow: 0 2px 8px rgba(45, 97, 135, 0.35);
+    }
+
+    .btn_relate_to:active {
+      transform: scale(0.97);
+    }
+
+    /* Info de relação (abaixo dos campos de PR) */
+    .relate_to_info {
+      font-size: 12px;
+      color: #2d6187;
+      margin-top: 4px;
+      padding: 4px 8px;
+      background: rgba(45, 97, 135, 0.08);
+      border-radius: 4px;
+      border-left: 3px solid #2d6187;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+    }
+
+    .relate_to_info strong {
+      color: #1a4a6e;
+    }
+
+    .btn_unlink_pr {
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #c53030;
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn_unlink_pr:hover {
+      background: #fed7d7;
+    }
+
+    /* ===== Tela Relate to (Modal) ===== */
+    .relate_to_fundo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 6100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      background: rgba(14, 31, 43, 0.45);
+      font-family: Arial, sans-serif;
+    }
+
+    .relate_to_janela {
+      display: flex;
+      flex-direction: column;
+      width: min(480px, 100%);
+      max-height: min(85vh, 650px);
+      max-height: min(85dvh, 650px);
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 14px;
+      background: #f7fafc;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    .relate_to_topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #2d6187, #1a4a6e);
+      color: white;
+    }
+
+    .relate_to_topo h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .relate_to_topo button {
+      flex: 0 0 32px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+
+    .relate_to_topo button:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .relate_to_pesquisa {
+      padding: 12px 16px 8px 16px;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .relate_to_pesquisa input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .relate_to_pesquisa input:focus {
+      border-color: #2d6187;
+      box-shadow: 0 0 0 2px rgba(45, 97, 135, 0.2);
+    }
+
+    .relate_to_lista {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 380px;
+      scrollbar-width: thin;
+    }
+
+    .relate_to_item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .relate_to_item:hover {
+      background: #edf2f7;
+      border-color: #2d6187;
+      transform: translateY(-1px);
+    }
+
+    .relate_to_item:active {
+      transform: translateY(0);
+    }
+
+    .relate_to_nome {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .relate_to_alerta {
+      color: #e53e3e;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: help;
+    }
+
+    .relate_to_pr {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5568;
+      background: #edf2f7;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .relate_to_vazio {
+      padding: 24px 16px;
+      text-align: center;
+      color: #718096;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .relate_to_acoes {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .btn_relate_to_remover {
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #e53e3e;
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn_relate_to_remover:hover {
+      background: #fed7d7;
+    }
+
+    .relate_to_fechar {
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #4a5568;
+      background: #edf2f7;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .relate_to_fechar:hover {
+      background: #e2e8f0;
+    }
+
+    .badge_relate_to {
+      background: #ebf8ff;
+      color: #2b6cb0;
+      border: 1px solid #bee3f8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .linha_data_pr {

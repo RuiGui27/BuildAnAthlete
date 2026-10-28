@@ -104,7 +104,9 @@
             <div class="linha_input_pr">
               <input type="number" min="0" step="any" id="campo_ex_pr_valor" placeholder="PR value (e.g. 100, 2.5)" oninput="limpar_erro_campo('campo_ex_pr_valor')">
               <select id="campo_ex_pr_unidade"></select>
+              <button type="button" id="btn_relate_to" class="btn_relate_to" onclick="abrir_tela_relate_to()" title="Relate PR to another exercise">Relate to</button>
             </div>
+            <span id="relate_to_info" class="relate_to_info" style="display:none;"></span>
           </div>
 
           <div class="campo_form" id="grupo_campo_bw_pr">
@@ -534,6 +536,24 @@
   </div>
 
   <datalist id="lista_sugestoes_exercicios"></datalist>
+
+  <!-- TELA: Relate to (relacionar PR entre exercícios) -->
+  <div id="tela_relate_to" class="relate_to_fundo" aria-hidden="true">
+    <section class="relate_to_janela" role="dialog" aria-modal="true" aria-labelledby="titulo_relate_to">
+      <header class="relate_to_topo">
+        <h2 id="titulo_relate_to">Relate to</h2>
+        <button type="button" aria-label="Close relate to" onclick="fechar_tela_relate_to()">X</button>
+      </header>
+      <div class="relate_to_pesquisa">
+        <input type="text" id="relate_to_pesquisa_input" placeholder="Search exercise by name..." oninput="filtrar_lista_relate_to()">
+      </div>
+      <div id="relate_to_lista" class="relate_to_lista" aria-live="polite"></div>
+      <footer class="relate_to_acoes">
+        <button type="button" id="btn_relate_to_remover" class="btn_relate_to_remover" onclick="remover_relacao_pr()" style="display:none;">🔗✕ Remove relation</button>
+        <button type="button" class="relate_to_fechar" onclick="fechar_tela_relate_to()">Close</button>
+      </footer>
+    </section>
+  </div>
 
   <script src="menu_exercicios.js"></script>
   <script src="menu_treinos.js"></script>

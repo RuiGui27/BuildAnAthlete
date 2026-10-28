@@ -343,6 +343,52 @@
         padding: 8px;
       }
 
+      /* ===== Relate to Modal Mobile ===== */
+      .relate_to_fundo {
+        padding: var(--mobile-gutter, 10px);
+        align-items: stretch;
+      }
+
+      .relate_to_janela {
+        width: 100%;
+        max-height: 100%;
+        border-radius: 10px;
+      }
+
+      .relate_to_topo {
+        padding: 10px 12px;
+      }
+
+      .relate_to_topo h2 {
+        font-size: 16px;
+      }
+
+      .relate_to_pesquisa {
+        padding: 8px 10px;
+      }
+
+      .relate_to_pesquisa input {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .relate_to_lista {
+        padding: 6px 10px;
+        max-height: min(45dvh, 320px);
+      }
+
+      .relate_to_item {
+        padding: 8px 10px;
+      }
+
+      .relate_to_acoes {
+        padding: 8px 10px;
+      }
+
+      .relate_to_acoes button {
+        min-height: 38px;
+      }
+
       .dd_botao {
         min-height: 40px;
       }
@@ -739,7 +785,33 @@
       }
 
       .linha_input_pr select {
-        width: 110px;
+        width: 85px;
+        flex-shrink: 0;
+      }
+
+      #grupo_campo_pr .linha_input_pr {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      #grupo_campo_pr .linha_input_pr input {
+        flex: 1 1 95px;
+        min-width: 60px;
+        max-width: 120px;
+      }
+
+      .btn_relate_to {
+        flex-shrink: 0;
+        padding: 7px 10px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+
+      .relate_to_info {
+        font-size: 11px;
+        padding: 3px 6px;
+        margin-top: 2px;
       }
 
       .campo_descricao_grupo textarea {

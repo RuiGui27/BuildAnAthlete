@@ -578,6 +578,7 @@ window.pesquisar_exercicio_dicionario = function(termo, campo = "todos") {
 
 function inicializar_menu_exercicios() {
     lista_exercicios_global = carregar_exercicios_storage();
+    sincronizar_exercicios_relacionados(lista_exercicios_global);
     window.dicionario_exercicios = lista_exercicios_global;
 
     carregar_opcoes_personalizadas();
@@ -1429,7 +1430,12 @@ function guardar_exercicio_dicionario() {
         // Modo Edição
         const index = lista_exercicios_global.findIndex(e => e.id === id_exercicio_em_edicao);
         if (index !== -1) {
-            lista_exercicios_global[index] = {
+            const relate_to_id_form = document.getElementById("campo_ex_pr_valor").dataset.relateToId;
+            const relate_to_id = (relate_to_id_form !== undefined && relate_to_id_form !== "")
+                ? Number(relate_to_id_form)
+                : null;
+
+            const dados_atualizados = {
                 ...lista_exercicios_global[index],
                 nome,
                 categorias,
@@ -1447,6 +1453,17 @@ function guardar_exercicio_dicionario() {
                 link,
                 atualizadoEm: new Date().toISOString()
             };
+
+            if (relate_to_id != null && !isNaN(relate_to_id)) {
+                dados_atualizados.relate_to_id = relate_to_id;
+            } else {
+                delete dados_atualizados.relate_to_id;
+            }
+
+            lista_exercicios_global[index] = dados_atualizados;
+
+            // Propagar PR para exercícios dependentes
+            propagar_pr_para_dependentes(id_exercicio_em_edicao);
         }
         id_exercicio_em_edicao = null;
     } else {
@@ -1454,6 +1471,8 @@ function guardar_exercicio_dicionario() {
         const novoId = lista_exercicios_global.length > 0
             ? Math.max(...lista_exercicios_global.map(e => e.id || 0)) + 1
             : 1;
+
+        const relate_to_id_form = document.getElementById("campo_ex_pr_valor").dataset.relateToId;
 
         const novoExercicio = {
             id: novoId,
@@ -1473,6 +1492,10 @@ function guardar_exercicio_dicionario() {
             link,
             criadoEm: new Date().toISOString()
         };
+
+        if (relate_to_id_form != null && !isNaN(Number(relate_to_id_form))) {
+            novoExercicio.relate_to_id = Number(relate_to_id_form);
+        }
 
         lista_exercicios_global.unshift(novoExercicio);
     }
@@ -1516,6 +1539,41 @@ function iniciar_edicao_exercicio(id) {
     if (inputDescricao) inputDescricao.value = ex.descricao || "";
     if (inputLink) inputLink.value = ex.link || "";
 
+    // Relate to: restaurar estado da relação
+    const info = document.getElementById("relate_to_info");
+    if (ex.relate_to_id != null) {
+        const fonte = lista_exercicios_global.find(e => e.id === ex.relate_to_id);
+        if (fonte) {
+            if (inputPrValor) {
+                inputPrValor.value = fonte.pr_valor || "";
+                inputPrValor.readOnly = true;
+                inputPrValor.dataset.relateToId = String(ex.relate_to_id);
+            }
+            if (inputPrUnidade) {
+                inputPrUnidade.value = fonte.pr_unidade || UNIDADES_PR[0];
+                inputPrUnidade.disabled = true;
+            }
+            atualizar_info_relate_to(fonte.nome, ex.relate_to_id);
+        } else {
+            // Exercício-fonte foi apagado: limpar relação
+            delete ex.relate_to_id;
+            if (inputPrValor) {
+                inputPrValor.readOnly = false;
+                delete inputPrValor.dataset.relateToId;
+            }
+            if (inputPrUnidade) inputPrUnidade.disabled = false;
+            if (info) { info.style.display = "none"; info.innerHTML = ""; }
+            salvar_exercicios_storage();
+        }
+    } else {
+        if (inputPrValor) {
+            inputPrValor.readOnly = false;
+            delete inputPrValor.dataset.relateToId;
+        }
+        if (inputPrUnidade) inputPrUnidade.disabled = false;
+        if (info) { info.style.display = "none"; info.innerHTML = ""; }
+    }
+
     definir_categorias_selecionadas(ex.categorias || [ex.categoria]);
     definir_musculos_selecionados(ex.musculos || [ex.musculo]);
 
@@ -1553,8 +1611,15 @@ function limpar_formulario_exercicio() {
     const btnGuardar = document.getElementById("btn_guardar_exercicio");
 
     if (inputNome) inputNome.value = "";
-    if (inputPrValor) inputPrValor.value = "";
-    if (inputPrUnidade) inputPrUnidade.selectedIndex = 0;
+    if (inputPrValor) {
+        inputPrValor.value = "";
+        inputPrValor.readOnly = false;
+        delete inputPrValor.dataset.relateToId;
+    }
+    if (inputPrUnidade) {
+        inputPrUnidade.selectedIndex = 0;
+        inputPrUnidade.disabled = false;
+    }
     if (inputBwValor) inputBwValor.value = "";
     if (inputBwUnidade) inputBwUnidade.value = "Kg";
     if (inputPrMes) inputPrMes.value = "";
@@ -1563,6 +1628,10 @@ function limpar_formulario_exercicio() {
     atualizar_limite_dia_pr();
     if (inputDescricao) inputDescricao.value = "";
     if (inputLink) inputLink.value = "";
+
+    // Limpar relate to info
+    const info = document.getElementById("relate_to_info");
+    if (info) { info.style.display = "none"; info.innerHTML = ""; delete info.dataset.relateToId; }
 
     limpar_checkboxes_selecionados();
 
@@ -1602,6 +1671,14 @@ function remover_exercicio_dicionario(id) {
 
     exercicios_selecionados_busca_tempo.delete(String(id));
     atualizar_contador_busca_tempo();
+
+    // Limpar relações de dependência: exercícios que dependem deste
+    lista_exercicios_global.forEach(ex => {
+        if (ex.relate_to_id === id) {
+            delete ex.relate_to_id;
+        }
+    });
+
     lista_exercicios_global = lista_exercicios_global.filter(e => e.id !== id);
     salvar_exercicios_storage();
 
@@ -1721,6 +1798,15 @@ function renderizar_lista_exercicios(exercicios) {
             ? `${ex.bw_at_pr} ${ex.bw_at_pr_unidade || "Kg"}`
             : "None";
 
+        // Info de relação de PR
+        let relateToHtml = "";
+        if (ex.relate_to_id != null) {
+            const fonte = lista_exercicios_global.find(e => e.id === ex.relate_to_id);
+            if (fonte) {
+                relateToHtml = `<span class="badge_relate_to" title="PR linked to ${escapeHtml(fonte.nome)}">🔗 ${escapeHtml(fonte.nome)}</span>`;
+            }
+        }
+
         const temLink = ex.link && ex.link.trim().length > 0;
         let linkHtml = "";
         if (temLink) {
@@ -1755,6 +1841,7 @@ function renderizar_lista_exercicios(exercicios) {
                         ${badgesCatHtml}
                         ${badgesMuscHtml}
                         <span class="badge_pr" title="Personal Record">🏆 PR: ${escapeHtml(prFormatado)}</span>
+                        ${relateToHtml}
                         <span class="badge_pr_detalhe">BW at PR: ${escapeHtml(bwPrFormatado)}</span>
                         <span class="badge_pr_detalhe">PR date: ${escapeHtml(formatar_data_pr(ex))}</span>
                     </div>
@@ -1788,6 +1875,250 @@ function escapeHtml(texto) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+/* ==========================================================================
+   RELATE TO - Relações de dependência de PR entre exercícios
+   ========================================================================== */
+
+/**
+ * Sincroniza exercícios relacionados com os respetivos exercícios-fonte.
+ */
+function sincronizar_exercicios_relacionados(lista) {
+    if (!Array.isArray(lista)) return;
+    const mapa = new Map(lista.map(e => [e.id, e]));
+    let houve_mudanca = false;
+    lista.forEach(ex => {
+        if (ex.relate_to_id != null) {
+            const fonte = mapa.get(ex.relate_to_id);
+            if (fonte) {
+                if (ex.pr_valor !== fonte.pr_valor || ex.pr_unidade !== fonte.pr_unidade) {
+                    ex.pr_valor = fonte.pr_valor;
+                    ex.pr_unidade = fonte.pr_unidade;
+                    houve_mudanca = true;
+                }
+            } else {
+                delete ex.relate_to_id;
+                houve_mudanca = true;
+            }
+        }
+    });
+    if (houve_mudanca) {
+        salvar_exercicios_storage();
+    }
+}
+
+/**
+ * Propaga o PR do exercício-fonte para todos os exercícios dependentes.
+ * Chamada sempre que um exercício é guardado (para atualizar os que dependem dele).
+ */
+function propagar_pr_para_dependentes(id_fonte) {
+    const fonte = lista_exercicios_global.find(e => e.id === id_fonte);
+    if (!fonte) return;
+
+    let houve_mudanca = false;
+    lista_exercicios_global.forEach(ex => {
+        if (ex.relate_to_id === id_fonte) {
+            ex.pr_valor = fonte.pr_valor;
+            ex.pr_unidade = fonte.pr_unidade;
+            houve_mudanca = true;
+        }
+    });
+    if (houve_mudanca) {
+        salvar_exercicios_storage();
+    }
+}
+
+/**
+ * Abre a tela de "Relate to" para escolher o exercício-fonte de PR.
+ */
+function abrir_tela_relate_to() {
+    const tela = document.getElementById("tela_relate_to");
+    tela.style.display = "flex";
+    tela.setAttribute("aria-hidden", "false");
+
+    const input = document.getElementById("relate_to_pesquisa_input");
+    input.value = "";
+    filtrar_lista_relate_to();
+
+    // Mostrar/esconder botão de remover relação
+    const btnRemover = document.getElementById("btn_relate_to_remover");
+    const exercicio_atual = id_exercicio_em_edicao !== null
+        ? lista_exercicios_global.find(e => e.id === id_exercicio_em_edicao)
+        : null;
+    if (exercicio_atual && exercicio_atual.relate_to_id != null) {
+        btnRemover.style.display = "inline-block";
+    } else {
+        btnRemover.style.display = "none";
+    }
+
+    input.focus();
+}
+
+/**
+ * Fecha a tela de "Relate to".
+ */
+function fechar_tela_relate_to() {
+    const tela = document.getElementById("tela_relate_to");
+    tela.style.display = "none";
+    tela.setAttribute("aria-hidden", "true");
+}
+
+/**
+ * Filtra a lista de exercícios na tela de "Relate to" pelo nome.
+ */
+function filtrar_lista_relate_to() {
+    const input = document.getElementById("relate_to_pesquisa_input");
+    const termo = (input ? input.value : "").toLowerCase().trim();
+    const container = document.getElementById("relate_to_lista");
+    container.replaceChildren();
+
+    // Não mostrar o exercício que está a ser editado na lista
+    const id_atual = id_exercicio_em_edicao;
+
+    const resultados = lista_exercicios_global.filter(ex => {
+        if (id_atual !== null && ex.id === id_atual) return false;
+        // Não mostrar exercícios que já dependem de outro (para evitar cadeias)
+        if (ex.relate_to_id != null) return false;
+        const nome = (ex.nome || "").toLowerCase();
+        return !termo || nome.includes(termo);
+    });
+
+    if (resultados.length === 0) {
+        const msg = document.createElement("p");
+        msg.className = "relate_to_vazio";
+        msg.textContent = "No exercises found.";
+        container.appendChild(msg);
+        return;
+    }
+
+    resultados.forEach(ex => {
+        const item = document.createElement("div");
+        item.className = "relate_to_item";
+
+        const temPr = ex.pr_valor !== undefined && ex.pr_valor !== "" && ex.pr_valor !== null;
+
+        const nomeSpan = document.createElement("span");
+        nomeSpan.className = "relate_to_nome";
+        nomeSpan.textContent = ex.nome;
+
+        if (!temPr) {
+            const alerta = document.createElement("span");
+            alerta.className = "relate_to_alerta";
+            alerta.textContent = " (!)";
+            alerta.title = "This exercise does't have a defined PR!";
+            nomeSpan.appendChild(alerta);
+        }
+
+        const prSpan = document.createElement("span");
+        prSpan.className = "relate_to_pr";
+        prSpan.textContent = temPr ? `PR: ${ex.pr_valor} ${ex.pr_unidade || ""}` : "PR: None";
+
+        item.append(nomeSpan, prSpan);
+
+        item.addEventListener("click", () => {
+            if (!temPr) {
+                alert("This exercise does't have a defined PR!");
+                return;
+            }
+            selecionar_relate_to(ex.id);
+        });
+
+        container.appendChild(item);
+    });
+}
+
+/**
+ * Ao selecionar um exercício na tela "Relate to",
+ * copia o PR para os campos do formulário e fecha a tela.
+ */
+function selecionar_relate_to(id_fonte) {
+    const fonte = lista_exercicios_global.find(e => e.id === id_fonte);
+    if (!fonte) return;
+
+    // Coloca o PR do exercício-fonte nos campos do formulário
+    const inputPrValor = document.getElementById("campo_ex_pr_valor");
+    const inputPrUnidade = document.getElementById("campo_ex_pr_unidade");
+
+    if (inputPrValor) inputPrValor.value = fonte.pr_valor || "";
+    if (inputPrUnidade) inputPrUnidade.value = fonte.pr_unidade || UNIDADES_PR[0];
+
+    // Desabilitar campos de PR (pois agora são controlados pela relação)
+    if (inputPrValor) inputPrValor.readOnly = true;
+    if (inputPrUnidade) inputPrUnidade.disabled = true;
+
+    // Guardar a referência temporariamente no formulário (será salva ao guardar o exercício)
+    document.getElementById("campo_ex_pr_valor").dataset.relateToId = String(id_fonte);
+
+    // Mostrar info de relação
+    atualizar_info_relate_to(fonte.nome, id_fonte);
+
+    fechar_tela_relate_to();
+}
+
+/**
+ * Mostra a info de relação no formulário.
+ */
+function atualizar_info_relate_to(nome_fonte, id_fonte) {
+    const info = document.getElementById("relate_to_info");
+    if (!info) return;
+    info.style.display = "inline-flex";
+    info.innerHTML = `<span>🔗 Related to: <strong>${escapeHtml(nome_fonte)}</strong></span><button type="button" class="btn_unlink_pr" onclick="remover_relacao_pr()" title="Unlink PR">✕ Unlink</button>`;
+    info.dataset.relateToId = String(id_fonte);
+}
+
+/**
+ * Remove a relação de PR do exercício em edição.
+ */
+function remover_relacao_pr() {
+    const inputPrValor = document.getElementById("campo_ex_pr_valor");
+    const inputPrUnidade = document.getElementById("campo_ex_pr_unidade");
+    const info = document.getElementById("relate_to_info");
+
+    // Reabilitar campos de PR
+    if (inputPrValor) {
+        inputPrValor.readOnly = false;
+        delete inputPrValor.dataset.relateToId;
+    }
+    if (inputPrUnidade) inputPrUnidade.disabled = false;
+
+    // Esconder info
+    if (info) {
+        info.style.display = "none";
+        info.innerHTML = "";
+        delete info.dataset.relateToId;
+    }
+
+    // Se estiver a editar um exercício existente, remover a relação
+    if (id_exercicio_em_edicao !== null) {
+        const ex = lista_exercicios_global.find(e => e.id === id_exercicio_em_edicao);
+        if (ex) {
+            delete ex.relate_to_id;
+            salvar_exercicios_storage();
+        }
+    }
+
+    fechar_tela_relate_to();
+}
+
+// Eventos da tela Relate To
+(function ligar_tela_relate_to() {
+    function ligar() {
+        const tela = document.getElementById("tela_relate_to");
+        if (tela) {
+            tela.addEventListener("click", function(e) {
+                if (e.target === tela) fechar_tela_relate_to();
+            });
+        }
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ligar);
+    else ligar();
+})();
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape" && document.getElementById("tela_relate_to").style.display === "flex") {
+        fechar_tela_relate_to();
+    }
+});
 
 /* ==========================================================================
    AUTO-EXECUÇÃO
