@@ -188,19 +188,33 @@
         box-sizing: border-box;
       }
 
+      /* largura dos 4 botões de baixo: a coluna da esquerda encosta à esquerda, a da direita à direita */
+      .linha_botoes_exercicio #botao_adicionar_exercicio,
+      .linha_botoes_exercicio #botao_agrupar_exercicios {
+        justify-self: start;
+        width: 140px;
+      }
+
+      .linha_botoes_exercicio #botao_separar,
+      .linha_botoes_exercicio #botao_desagrupar_exercicios {
+        justify-self: center;
+        width: 140px;
+      }
+
       .linha_botoes_exercicio #botao_adicionar_exercicio,
       .linha_botoes_exercicio #botao_separar,
       .linha_botoes_exercicio #botao_agrupar_exercicios,
       .linha_botoes_exercicio #botao_desagrupar_exercicios {
-        margin: 0;
+        margin: 0 5px;
       }
 
+      /* a referência agora é a linha do cabeçalho (.ex_topo), que começa 12px dentro da caixa */
       .ex_agrupar_selecao {
-        left: -26px;
+        left: -38px;
       }
 
       .ex_ponto_ligacao {
-        left: -21px;
+        left: -33px;
       }
 
       .ex_topo {
@@ -229,6 +243,7 @@
 
       .botoes_treino_acoes {
         flex-wrap: wrap;
+        justify-content: space-between; /* o último botão (Paste) encosta à direita, como os de baixo */
         gap: 6px;
         margin: 0 16px 8px;
       }
@@ -496,8 +511,9 @@
         box-sizing: border-box;
       }
 
+      /* 4px + os 10px do botão acima = 14px, como antes */
       #tela_editar_treino.modo_leitura .campo_autoavaliacao_treino {
-        margin-top: 14px;
+        margin-top: 4px;
       }
 
       /* modo de leitura: cabeçalho mais baixo (título e botões mais juntos, sem linhas vazias por baixo dos botões) */
@@ -510,8 +526,9 @@
         display: none;
       }
 
+      /* espaço mínimo entre os botões e a zona das caixas de exercício */
       #tela_editar_treino.modo_leitura .linha_modo_treino {
-        margin: 0 30px;
+        margin: 0 30px 10px;
       }
 
       #tela_editar_treino.modo_leitura .linha_exercicio {

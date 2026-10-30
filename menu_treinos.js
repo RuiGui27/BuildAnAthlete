@@ -312,7 +312,21 @@ function atualizar_botao_agrupamento() {
     atualizar_ligacoes_exercicios();
 }
 
+// Cada caixa de exercício é observada: quando muda de altura (um nome que passa a ocupar duas linhas, uma descrição
+// maior, uma tabela...), as ligações são desenhadas de novo. Antes ficavam na posição antiga e desligavam-se das checkboxes.
+const caixas_com_altura_observada = new WeakSet();
+const observador_altura_caixas = (typeof ResizeObserver !== "undefined")
+    ? new ResizeObserver(() => desenhar_ligacoes_exercicios(document.getElementById("lista_exercicios"), modo_leitura))
+    : null;
+
+function observar_altura_caixa(linha) {
+    if (!observador_altura_caixas || caixas_com_altura_observada.has(linha)) return;
+    caixas_com_altura_observada.add(linha);
+    observador_altura_caixas.observe(linha);
+}
+
 function atualizar_ligacoes_exercicios() {
+    document.querySelectorAll("#lista_exercicios .linha_exercicio").forEach(observar_altura_caixa);
     desenhar_ligacoes_exercicios(document.getElementById("lista_exercicios"), modo_leitura);
 }
 
@@ -1246,6 +1260,7 @@ function adicionar_exercicio(rolar = true, dados = null) {
     atualizar_sugestoes(linha);
 
     lista.appendChild(linha);
+    observar_altura_caixa(linha);
     ajustar_altura_detalhes(textarea); // se a tela já está visível (ex.: exercício novo ou colado)
     renumerar_exercicios();
     atualizar_botao_agrupamento();

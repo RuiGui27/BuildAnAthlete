@@ -11,7 +11,7 @@
   }
 
   #tela_editar_treino.modo_leitura .campo_autoavaliacao_treino {
-    margin-top: 14px;
+    margin-top: 4px; /* + os 10px do botão acima = 14px, como antes */
   }
 
   #tela_calculadora,

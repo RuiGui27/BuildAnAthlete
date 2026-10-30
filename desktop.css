@@ -757,10 +757,12 @@
         color: #1f3f57;
     }
 
+    /* checkbox e ponto ficam ao centro da linha do cabeçalho (o nome pode ocupar duas linhas) */
     .ex_agrupar_selecao {
         position: absolute;
-        top: 14px;
-        left: -40px;
+        top: 50%;
+        left: -56px;
+        transform: translateY(-50%);
         z-index: 2;
         display: block;
         width: 17px;
@@ -772,8 +774,9 @@
     .ex_ponto_ligacao {
         display: none;
         position: absolute;
-        top: 19px;
-        left: -35px;
+        top: 50%;
+        left: -51px;
+        transform: translateY(-50%);
         z-index: 2;
         width: 7px;
         height: 7px;
@@ -812,6 +815,7 @@
 
     /* o cabeçalho mantém o número, o alerta e o nome alinhados */
     .ex_topo {
+        position: relative; /* referência da checkbox e do ponto (ficam ao centro desta linha) */
         display: flex;
         align-items: center;
         gap: 8px;
