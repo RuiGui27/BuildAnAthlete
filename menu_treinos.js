@@ -734,7 +734,7 @@ function unidades_de_medida() {
 
 /* ---------- tabela de séries: secções (reps | intensidade) x grupos de séries ---------- */
 
-const UNIDADES_INTENSIDADE = ["%", "Lb", "Kg", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "RSI", "DRI", "__"];
+const UNIDADES_INTENSIDADE = ["%", "Lb", "Kg", "RIR", "RPE", "m/s", "yards", "meters", "cm", "in", "W", "GCT (s)", "RSI", "DRI", "__", "submax"];
 const TIPOS_SERIE = ["reps", "%", "RIR", "RPE", "yards", "meters", "Km", "miles", "seconds", "minuts", "hours", "__"];
 const MAX_SECOES_TABELA = 8;
 const MAX_SERIES_TABELA = 8;
@@ -1516,17 +1516,22 @@ function colar_treino() {
     mostrar_notificacao("Workout pasted");
 }
 
-function abrir_notas_dia(dia, mes, ano) {
+// somente_leitura = true: abre só para consulta (usado no "Search through time"): sem editar nem guardar
+function abrir_notas_dia(dia, mes, ano, somente_leitura = false) {
     dia_notas_atual = dia;
     mes_notas_atual = mes;
     ano_notas_atual = ano;
 
     const chave = chave_treino(dia, mes, ano);
     const nota_existente = notas_dia[chave];
+    const campo = document.getElementById("campo_notas_dia");
 
     document.getElementById("texto_titulo_notas_dia").textContent =
         `Notes for ${dia}/${mes}/${ano}`;
-    document.getElementById("campo_notas_dia").value = nota_existente ? nota_existente.notas : "";
+    campo.value = nota_existente ? nota_existente.notas : "";
+    campo.readOnly = somente_leitura;
+    document.getElementById("botao_guardar_notas_dia").hidden = somente_leitura;
+    document.getElementById("botao_cancelar_notas_dia").textContent = somente_leitura ? "Close" : "Cancel";
 
     document.getElementById("tela_notas_dia").style.display = "flex";
 }
@@ -1541,11 +1546,54 @@ function guardar_notas_dia() {
     fechar_notas_dia();
 }
 
+// true quando as notas foram abertas a partir do "Search through time" (e não do calendário)
+let notas_dia_vindas_da_busca = false;
+
 function fechar_notas_dia() {
+    const veio_da_busca = notas_dia_vindas_da_busca;
     document.getElementById("tela_notas_dia").style.display = "none";
     dia_notas_atual = mes_notas_atual = ano_notas_atual = null;
-    regenerar_calendario();
+    notas_dia_vindas_da_busca = false;
+    // só volta ao calendário se as notas tiverem sido abertas a partir dele
+    if (!veio_da_busca) regenerar_calendario();
+    atualizar_botao_notas_busca_tempo();
 }
+
+/* botão "notas" do "Search through time": mostra as notas do treino que está a ser visto e abre-as */
+function atualizar_botao_notas_busca_tempo() {
+    const botao = document.getElementById("botao_notas_busca_tempo");
+    if (!botao) return;
+    const atual = treinos_resultado_busca_tempo[indice_treino_busca_tempo];
+    botao.hidden = !atual;
+    if (!atual) return;
+    const [ano, mes, dia] = atual.chave.split("-").map(Number);
+    const nota = notas_dia[atual.chave];
+    botao.style.color = nota && nota.notas && nota.notas.trim() ? "green" : "";
+    botao.title = `Notes for ${dia}/${mes}/${ano}`;
+}
+
+function abrir_notas_busca_tempo() {
+    const atual = treinos_resultado_busca_tempo[indice_treino_busca_tempo];
+    if (!atual) return;
+    const [ano, mes, dia] = atual.chave.split("-").map(Number);
+    abrir_notas_dia(dia, mes, ano, true); // só de leitura
+    notas_dia_vindas_da_busca = true;
+}
+
+// o "Search through time" (menu_exercicios.js) desenha cada treino com esta função: depois de desenhar, atualiza o botão
+const renderizar_treino_busca_tempo_base = renderizar_treino_busca_tempo;
+renderizar_treino_busca_tempo = function () {
+    renderizar_treino_busca_tempo_base();
+    atualizar_botao_notas_busca_tempo();
+};
+
+// Escape com as notas abertas fecha só as notas, não o "Search through time" que está por baixo
+document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    if (document.getElementById("tela_notas_dia").style.display !== "flex") return;
+    fechar_notas_dia();
+    event.stopImmediatePropagation();
+}, true);
 
 function guardar_treino() {
     const container = document.getElementById("lista_exercicios");
@@ -1924,7 +1972,7 @@ function gerar_calendário() {
         topo_dia.classList.add("topo_dia");
         const botao_notas_dia = document.createElement('button');
         botao_notas_dia.classList.add('botao_notas_cal');
-        botao_notas_dia.textContent = "notas";
+        botao_notas_dia.textContent = "notes";
         const numero_dia = document.createElement("span");
         numero_dia.classList.add("numero_dia");
         numero_dia.textContent = i;

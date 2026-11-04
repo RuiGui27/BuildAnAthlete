@@ -502,6 +502,7 @@
       </header>
       <div class="busca_tempo_data_nav">
         <strong id="data_treino_busca_tempo"></strong>
+        <button type="button" id="botao_notas_busca_tempo" class="botao_notas_busca_tempo" title="Notes for this day" aria-label="Notes for this day" hidden onclick="abrir_notas_busca_tempo()">notes</button>
         <button type="button" id="treino_busca_tempo_mais_antigo" aria-label="Older workout" title="Older workout" onclick="mudar_treino_busca_tempo(-1)">&#8592;</button>
         <button type="button" id="treino_busca_tempo_mais_recente" aria-label="Newer workout" title="Newer workout" onclick="mudar_treino_busca_tempo(1)">&#8594;</button>
       </div>
@@ -513,8 +514,8 @@
     <p id="texto_titulo_notas_dia">Notes for the day</p>
     <textarea id="campo_notas_dia" placeholder="Write your notes here..."></textarea>
     <div class="botoes_notas_dia">
-      <button onclick="guardar_notas_dia()">Save</button>
-      <button onclick="fechar_notas_dia()">Cancel</button>
+      <button id="botao_guardar_notas_dia" onclick="guardar_notas_dia()">Save</button>
+      <button id="botao_cancelar_notas_dia" onclick="fechar_notas_dia()">Cancel</button>
     </div>
   </div>
 

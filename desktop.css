@@ -1522,7 +1522,7 @@
       flex-direction: column;
       padding: 20px;
       box-sizing: border-box;
-      z-index: 2000;
+      z-index: 8500; /* acima do "Search through time" (8000), que também pode estar aberto */
     }
 
     #campo_notas_dia {
@@ -1535,6 +1535,13 @@
       margin-bottom: 15px;
       font-family: Arial, sans-serif;
     }
+    /* notas abertas a partir do "Search through time": só de leitura */
+    #campo_notas_dia:read-only {
+      background: #e9eef2;
+      color: #4d6578;
+      cursor: default;
+    }
+
     .botoes_notas_dia {
       display: flex;
       justify-content: space-around;
@@ -2751,8 +2758,13 @@
     }
 
     #data_treino_busca_tempo {
-      margin-right: auto;
+      margin-right: 0;
       font-size: 16px;
+    }
+
+    /* as setas ficam à direita (a data e o botão "notas" ficam juntos à esquerda) */
+    #treino_busca_tempo_mais_antigo {
+      margin-left: auto;
     }
 
     .busca_tempo_data_nav button {
@@ -2766,6 +2778,21 @@
     .busca_tempo_data_nav button:disabled {
       cursor: default;
       opacity: 0.45;
+    }
+
+    /* botão "notas" do treino mostrado, à frente da data (sobrepõe os tamanhos das setas, também no telemóvel) */
+    .busca_tempo_data_nav #botao_notas_busca_tempo {
+      flex: 0 0 auto;
+      width: auto;
+      height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1f3f57;
+    }
+
+    .busca_tempo_data_nav #botao_notas_busca_tempo[hidden] {
+      display: none;
     }
 
     .busca_tempo_conteudo {
