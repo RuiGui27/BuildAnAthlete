@@ -25,6 +25,12 @@
     <input type="file" id="ficheiro_importacao_backup" accept="application/json,.json" hidden onchange="importar_backup(event)">
   </div>
 
+  <!-- setas para o treino anterior/seguinte: ocupam o lugar do Menus, só com a tela de edição aberta (menu_treinos.js) -->
+  <div id="navegacao_treino">
+    <button type="button" id="botao_treino_anterior" title="Previous workout" aria-label="Previous workout" onclick="navegar_treino(-1)">&lt;</button>
+    <button type="button" id="botao_treino_seguinte" title="Next workout" aria-label="Next workout" onclick="navegar_treino(1)">&gt;</button>
+  </div>
+
   <button type="button" id="botao_bloco_notas" onclick="abrir_bloco_notas()">Note Block</button>
   <button type="button" id="botao_calculadora" onclick="abrir_calculadora()">Calc</button>
 
@@ -234,6 +240,7 @@
     <div class="linha_modo_treino">
       <button type="button" id="botao_modo_treino" aria-pressed="false" onclick="alternar_modo_treino()">Editing Mode</button>
       <button type="button" id="botao_copiar_treino" title="Copy this whole workout (all fields except the self-assessment)" onclick="copiar_treino()">Copy Workout</button>
+      <button type="button" id="botao_notas_treino" class="botao_notas_treino" aria-label="Notes for this day" hidden onclick="abrir_notas_treino()">notes</button>
     </div>
 
     <div class="linha_botoes_exercicio">

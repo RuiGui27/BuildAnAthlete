@@ -74,7 +74,8 @@ const UNIDADES_PR = [
     "reps",
     "RSI",
     "DRI",
-    "__"
+    "__",
+    "BW"
 ];
 
 // nomes antigos guardados no navegador -> nomes atuais (assim os dados já guardados continuam a aparecer selecionados)

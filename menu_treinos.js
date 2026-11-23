@@ -48,6 +48,8 @@ let dia_atual, mes_atual, ano_atual; // dia em que estamos a trabalhar
 let treino_em_edicao = null;         // id do treino a editar, ou null = treino novo
 let modo_leitura = false;
 let temporizador_autoavaliacao = null;
+let notas_dia_vindas_da_edicao = false; // true quando as notas foram abertas pelo botão "notes" da tela de edição
+let estado_guardado_treino = "";        // o que estava no ecrã ao abrir/guardar o treino (se mudar, há alterações por guardar)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +151,10 @@ function mostrar_tela_editar_treino(leituraForcada = null, visualizacaoAlvo = fa
     ajustar_alturas_detalhes(); // a tela já está visível: cada descrição fica com a altura do texto
     requestAnimationFrame(atualizar_ligacoes_exercicios);
     requestAnimationFrame(alinhar_botao_copiar_treino); // a tela já está visível e com o layout feito
+
+    estado_guardado_treino = estado_atual_treino(); // o que está no ecrã agora é o que está guardado
+    atualizar_botao_notas_treino();
+    atualizar_navegacao_treino();
 }
 
 function fechar_tela_editar_treino(){
@@ -479,6 +485,7 @@ function definir_modo_leitura(leitura, guardarPreferencia = true) {
     const botao = document.getElementById("botao_modo_treino");
     botao.textContent = leitura ? "Reading mode" : "Editing mode";
     botao.setAttribute("aria-pressed", String(leitura));
+    document.getElementById("botao_notas_treino").hidden = !leitura; // "notes" só aparece em modo leitura
 
     tela.querySelectorAll(".ex_textarea, .ex_rm_valor, .ex_cel_sets, .ex_cel_reps, .ex_cel_int, .input_nome_sep")
         .forEach(campo => { campo.readOnly = leitura; });
@@ -499,6 +506,91 @@ function definir_modo_leitura(leitura, guardarPreferencia = true) {
 
 function alternar_modo_treino() {
     definir_modo_leitura(!modo_leitura);
+}
+
+/* ---------- setas do treino anterior/seguinte (lugar do Menus, só com a tela de edição aberta) ---------- */
+
+// dias com treino guardado, por ordem cronológica
+function dias_com_treino() {
+    return Object.keys(treinos)
+        .filter(chave => Array.isArray(treinos[chave]) && treinos[chave].length > 0)
+        .map(chave => {
+            const [ano_t, mes_t, dia_t] = chave.split("-").map(Number);
+            return { chave, dia: dia_t, mes: mes_t, ano: ano_t, tempo: new Date(ano_t, mes_t - 1, dia_t).getTime() };
+        })
+        .filter(d => !Number.isNaN(d.tempo))
+        .sort((a, b) => a.tempo - b.tempo);
+}
+
+// o treino guardado anterior (-1) ou seguinte (+1) ao dia que está aberto, ou null se não houver
+function treino_vizinho(direcao) {
+    const atual = new Date(ano_atual, mes_atual - 1, dia_atual).getTime();
+    const dias = dias_com_treino();
+    if (direcao < 0) {
+        const anteriores = dias.filter(d => d.tempo < atual);
+        return anteriores.length > 0 ? anteriores[anteriores.length - 1] : null;
+    }
+    return dias.find(d => d.tempo > atual) || null;
+}
+
+// o que está no ecrã (exercícios, separadores e autoavaliação), para saber se há alterações por guardar
+function estado_atual_treino() {
+    return JSON.stringify({
+        itens: ler_itens_treino(),
+        autoavaliacao: document.getElementById("autoavaliacao_treino").value
+    });
+}
+
+// abre o treino anterior/seguinte em modo leitura (não muda a preferência de modo guardada para esse dia)
+function navegar_treino(direcao) {
+    const destino = treino_vizinho(direcao);
+    if (!destino) return;
+
+    if (!modo_leitura && estado_atual_treino() !== estado_guardado_treino
+        && !confirm("There are changes that have not been saved. Leave this workout without saving?")) {
+        return;
+    }
+
+    dia_atual = destino.dia;
+    mes_atual = destino.mes;
+    ano_atual = destino.ano;
+    mes = destino.mes; // ao fechar a tela, o calendário mostra o mês do treino que se estava a ver
+    ano = destino.ano;
+
+    const treino = (treinos[destino.chave] || [])[0];
+    treino_em_edicao = treino ? treino.id : null;
+    mostrar_tela_editar_treino(true, false);
+}
+
+// setas visíveis só com a tela de edição aberta, sem o modo "visualização alvo" e sem as notas do dia por cima.
+// Sem treino para onde ir, a seta fica desativada
+function atualizar_navegacao_treino() {
+    const navegacao = document.getElementById("navegacao_treino");
+    const tela = document.getElementById("tela_editar_treino");
+    const notas = document.getElementById("tela_notas_dia");
+    const visivel = tela.style.display === "block"
+        && !tela.classList.contains("modo_visualizacao_alvo")
+        && notas.style.display !== "flex";
+    navegacao.style.display = visivel ? "flex" : "none";
+    if (!visivel) return;
+    document.getElementById("botao_treino_anterior").disabled = !treino_vizinho(-1);
+    document.getElementById("botao_treino_seguinte").disabled = !treino_vizinho(1);
+}
+
+/* botão "notes" (modo leitura): abre as notas do dia do treino para escrever, sem sair da tela de edição */
+
+function abrir_notas_treino() {
+    abrir_notas_dia(dia_atual, mes_atual, ano_atual); // editável, como nas notas do calendário
+    notas_dia_vindas_da_edicao = true;
+}
+
+// fica verde quando o dia tem notas (igual ao botão de notas da pesquisa no tempo)
+function atualizar_botao_notas_treino() {
+    const botao = document.getElementById("botao_notas_treino");
+    if (!botao || !Number.isInteger(dia_atual)) return;
+    const nota = notas_dia[chave_treino(dia_atual, mes_atual, ano_atual)];
+    botao.style.color = nota && nota.notas && nota.notas.trim() ? "green" : "";
+    botao.title = `Notes for ${dia_atual}/${mes_atual}/${ano_atual}`;
 }
 
 // no telemóvel, em modo de edição, o "Copy workout" fica com a mesma coluna esquerda do "Clear All".
@@ -1551,12 +1643,16 @@ let notas_dia_vindas_da_busca = false;
 
 function fechar_notas_dia() {
     const veio_da_busca = notas_dia_vindas_da_busca;
+    const veio_da_edicao = notas_dia_vindas_da_edicao;
     document.getElementById("tela_notas_dia").style.display = "none";
     dia_notas_atual = mes_notas_atual = ano_notas_atual = null;
     notas_dia_vindas_da_busca = false;
-    // só volta ao calendário se as notas tiverem sido abertas a partir dele
-    if (!veio_da_busca) regenerar_calendario();
+    notas_dia_vindas_da_edicao = false;
+    // só volta ao calendário se as notas tiverem sido abertas a partir dele;
+    // as que vêm da tela de edição fecham para o próprio treino (em modo leitura)
+    if (!veio_da_busca && !veio_da_edicao) regenerar_calendario();
     atualizar_botao_notas_busca_tempo();
+    atualizar_botao_notas_treino();
 }
 
 /* botão "notas" do "Search through time": mostra as notas do treino que está a ser visto e abre-as */
@@ -1678,6 +1774,8 @@ function guardar_treino() {
         `Edit Workout - ${dia_atual}/${mes_atual}/${ano_atual}`;
     definir_modo_leitura(true);
     requestAnimationFrame(atualizar_ligacoes_exercicios);
+    estado_guardado_treino = estado_atual_treino(); // guardado: já não há alterações por guardar
+    atualizar_navegacao_treino(); // um treino novo passa a contar para as setas
     mostrar_notificacao("Workout saved");
 }
 
@@ -2446,6 +2544,10 @@ function iniciar_no_calendario() {
     document.getElementById("botão_menu").style.display = "block";
     abrir_calendario();
 }
+// as setas acompanham a tela de edição (abre, fecha, muda de modo) e as notas do dia (abre, fecha)
+new MutationObserver(atualizar_navegacao_treino).observe(document.getElementById("tela_editar_treino"), { attributes: true, attributeFilter: ["style", "class"] });
+new MutationObserver(atualizar_navegacao_treino).observe(document.getElementById("tela_notas_dia"), { attributes: true, attributeFilter: ["style"] });
+
 iniciar_no_calendario();
 
 const menu_principal = document.getElementById("botão_menu");

@@ -17,6 +17,13 @@
         transform: translateX(-50%);
       }
 
+      /* setas do treino anterior/seguinte: na mesma posição do Menus (ver desktop.css) */
+      #navegacao_treino {
+        top: 12px;
+        left: 16.6667%;
+        transform: translateX(-50%);
+      }
+
       .menu > button,
       #botao_bloco_notas {
         min-height: var(--mobile-toolbar-height);
@@ -251,6 +258,14 @@
       .linha_modo_treino {
         gap: 6px;
         margin: 0 30px 8px;
+      }
+
+      /* "Reading mode", "Copy Workout" e "notes" na mesma linha (360px): botões um pouco mais estreitos */
+      #botao_modo_treino,
+      #botao_copiar_treino,
+      #botao_notas_treino {
+        padding: 8px 8px;
+        font-size: 14px;
       }
 
       .ex_selecionado {
@@ -526,9 +541,10 @@
         display: none;
       }
 
-      /* espaço mínimo entre os botões e a zona das caixas de exercício */
+      /* espaço mínimo entre os botões e a zona das caixas de exercício.
+         A margem esquerda acompanha a das caixas (28px), para os botões ficarem alinhados com elas */
       #tela_editar_treino.modo_leitura .linha_modo_treino {
-        margin: 0 30px 10px;
+        margin: 0 20px 10px 28px;
       }
 
       #tela_editar_treino.modo_leitura .linha_exercicio {

@@ -404,7 +404,7 @@
     }
 
     #calendario {
-      width: 1150px;
+      width: 1490px;
       background-color: rgb(209, 202, 202); 
 
       display: none;
@@ -645,6 +645,48 @@
       background-color: #24506f;
     }
 
+    /* botão "notes" do dia, à frente do Copy Workout (só em modo leitura); cor igual ao botão de notas da pesquisa no tempo */
+    #botao_notas_treino {
+      padding: 8px 16px;
+      background-color: #f0f0f0;
+      color: #1f3f57;
+      font-weight: bold;
+    }
+
+    #botao_notas_treino[hidden] {
+      display: none;
+    }
+
+    /* setas anterior/seguinte: ocupam o lugar do botão Menus e só aparecem com a tela de edição aberta
+       (o JS mostra-as com style.display = "flex"). Mesmo estilo das setas dos meses, mas mais pequenas e juntas */
+    #navegacao_treino {
+      display: none;
+      position: absolute;
+      top: 35px;   /* mesma posição do Menus */
+      left: 37px;
+      z-index: 1500;
+      gap: 4px;
+    }
+
+    #navegacao_treino button {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      font-size: 20px;
+      line-height: 1;
+      filter: brightness(0.88);
+    }
+
+    #navegacao_treino button:hover {
+      filter: brightness(0.78);
+    }
+
+    #navegacao_treino button:disabled {
+      opacity: 0.45;
+      cursor: default;
+      filter: none;
+    }
+
     #botao_fechar_tela_horas,
     #botão_fechar_tela_editar_treino {
         position: absolute;
@@ -674,7 +716,7 @@
     }
 
     #botao_mes_seguinte {
-      left: 1261px;
+      left: 1601px;
       filter: brightness(0.88);
     }
 
